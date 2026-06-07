@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TEMPLATE_DIR="$ROOT_DIR/templates"
+HARNESS_VERSION="$(tr -d '[:space:]' < "$TEMPLATE_DIR/.ai/HARNESS_VERSION")"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  new-full-project [--stack STACK] [--description TEXT] [--no-git] <project-name> [target-parent]
+
+Environment:
+  AI_PROJECT_STACK          Optional stack label.
+  AI_PROJECT_DESCRIPTION    Optional one-line project description.
+
+Examples:
+  new-full-project analytics-workspace ~/Projects
+  AI_PROJECT_STACK="React + Node.js" new-full-project analytics-workspace ~/Projects
+USAGE
+}
+
+PROJECT_STACK="${AI_PROJECT_STACK:-TBD}"
+PROJECT_DESCRIPTION="${AI_PROJECT_DESCRIPTION:-TBD}"
+NO_GIT=0
+POSITIONAL=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --stack)
+      [[ $# -ge 2 ]] || { echo "--stack requires a value" >&2; exit 2; }
+      PROJECT_STACK="$2"
+      shift 2
+      ;;
+    --description)
+      [[ $# -ge 2 ]] || { echo "--description requires a value" >&2; exit 2; }
+      PROJECT_DESCRIPTION="$2"
+      shift 2
+      ;;
+    --no-git)
+      NO_GIT=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      while [[ $# -gt 0 ]]; do
+        POSITIONAL+=("$1")
+        shift
+      done
+      ;;
+    -*)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+    *)
+      POSITIONAL+=("$1")
+      shift
+      ;;
+  esac
+done
+
+if [[ ${#POSITIONAL[@]} -lt 1 || ${#POSITIONAL[@]} -gt 2 ]]; then
+  usage >&2
+  exit 2
+fi
+
+PROJECT_NAME="${POSITIONAL[0]}"
+TARGET_PARENT="${POSITIONAL[1]:-$PWD}"
+
+if [[ -z "$PROJECT_NAME" || "$PROJECT_NAME" == *"/"* ]]; then
+  echo "Project name must be a non-empty directory name without slashes." >&2
+  exit 2
+fi
+
+if [[ ! -d "$TEMPLATE_DIR" ]]; then
+  echo "Template directory not found: $TEMPLATE_DIR" >&2
+  exit 1
+fi
+
+mkdir -p "$TARGET_PARENT"
+TARGET_PARENT="$(cd "$TARGET_PARENT" && pwd)"
+PROJECT_DIR="$TARGET_PARENT/$PROJECT_NAME"
+
+if [[ -e "$PROJECT_DIR" ]] && [[ -n "$(find "$PROJECT_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]]; then
+  echo "Target project directory already exists and is not empty: $PROJECT_DIR" >&2
+  exit 1
+fi
+
+mkdir -p "$PROJECT_DIR"
+cp -R "$TEMPLATE_DIR"/. "$PROJECT_DIR"/
+
+escape_sed() {
+  printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'
+}
+
+PROJECT_NAME_ESCAPED="$(escape_sed "$PROJECT_NAME")"
+PROJECT_STACK_ESCAPED="$(escape_sed "$PROJECT_STACK")"
+PROJECT_DESCRIPTION_ESCAPED="$(escape_sed "$PROJECT_DESCRIPTION")"
+HARNESS_VERSION_ESCAPED="$(escape_sed "$HARNESS_VERSION")"
+TODAY_ESCAPED="$(date +%F)"
+
+while IFS= read -r file; do
+  tmp_file="${file}.tmp.$$"
+  sed \
+    -e "s/{{PROJECT_NAME}}/${PROJECT_NAME_ESCAPED}/g" \
+    -e "s/{{PROJECT_STACK}}/${PROJECT_STACK_ESCAPED}/g" \
+    -e "s/{{PROJECT_DESCRIPTION}}/${PROJECT_DESCRIPTION_ESCAPED}/g" \
+    -e "s/{{HARNESS_VERSION}}/${HARNESS_VERSION_ESCAPED}/g" \
+    -e "s/{{TODAY}}/${TODAY_ESCAPED}/g" \
+    "$file" > "$tmp_file"
+  mv "$tmp_file" "$file"
+done < <(find "$PROJECT_DIR" -type f -print)
+
+if [[ -f "$PROJECT_DIR/scripts/check-harness.sh" ]]; then
+  chmod +x "$PROJECT_DIR/scripts/check-harness.sh"
+fi
+
+if [[ "$NO_GIT" -eq 0 ]] && command -v git >/dev/null 2>&1; then
+  git -C "$PROJECT_DIR" init -q
+fi
+
+cat <<EOF
+Created full-harness project: $PROJECT_DIR
+
+Next steps:
+1. Open the project directory.
+2. Read AGENTS.md or the tool-specific entry file.
+3. Read .ai/PROJECT_CONTEXT.md, .ai/PROJECT_RULES.md, recent .ai/PROJECT_HISTORY.md, and .ai/WORKFLOW.md.
+4. Draft Stage 0 Plan and stop for user confirmation.
+EOF

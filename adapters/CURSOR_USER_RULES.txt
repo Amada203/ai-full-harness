@@ -1,0 +1,13 @@
+When the user asks to create a project with the full harness, including
+"用完整 Harness 新建项目", "完整 Harness", or "full harness project":
+
+1. Do not start coding immediately.
+2. Ask only for missing essentials: project name, target parent directory, and
+   tech stack when relevant.
+3. Run `/Users/apple/ai-full-harness/bin/new-full-project <project-name> <target-parent>`.
+4. Open the generated project and read `.ai/PROJECT_CONTEXT.md`,
+   `.ai/PROJECT_RULES.md`, recent `.ai/PROJECT_HISTORY.md`, and
+   `.ai/WORKFLOW.md`.
+5. Start at Stage 0 Plan.
+
+For generated projects, `.ai/PROJECT_RULES.md` is the single source of truth.

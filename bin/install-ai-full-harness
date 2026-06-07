@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+STAMP="$(date +%Y%m%d%H%M%S)"
+
+START_MARKER="<!-- ai-full-harness:new-project:start -->"
+END_MARKER="<!-- ai-full-harness:new-project:end -->"
+
+install_marked_block() {
+  local target_file="$1"
+  local block="$2"
+  local target_dir
+  local tmp_file
+
+  target_dir="$(dirname "$target_file")"
+  mkdir -p "$target_dir"
+  tmp_file="$(mktemp)"
+
+  if [[ -f "$target_file" ]]; then
+    cp "$target_file" "$target_file.bak.$STAMP"
+    awk -v start="$START_MARKER" -v end="$END_MARKER" '
+      $0 == start { skip = 1; next }
+      $0 == end { skip = 0; next }
+      skip != 1 { print }
+    ' "$target_file" > "$tmp_file"
+  else
+    : > "$tmp_file"
+  fi
+
+  {
+    cat "$tmp_file"
+    if [[ -s "$tmp_file" ]]; then
+      printf '\n'
+    fi
+    printf '%s\n' "$START_MARKER"
+    printf '%s\n' "$block"
+    printf '%s\n' "$END_MARKER"
+  } > "$target_file"
+
+  rm -f "$tmp_file"
+}
+
+CODEX_BLOCK="$(cat <<EOF
+# AI Full Harness Trigger
+
+Use this only when the user explicitly asks for "完整 Harness", "用完整
+Harness 新建项目", or "full harness project".
+
+1. Do not start coding immediately.
+2. Ask only for missing essentials: project name, target parent directory, and
+   tech stack when relevant.
+3. Run \`$ROOT_DIR/bin/new-full-project <project-name> <target-parent>\`.
+4. Open the generated project and read the root entry file.
+5. Then read \`.ai/PROJECT_CONTEXT.md\`, \`.ai/PROJECT_RULES.md\`, recent
+   \`.ai/PROJECT_HISTORY.md\`, and \`.ai/WORKFLOW.md\`.
+6. Start at Stage 0 Plan.
+
+Do not use this for ordinary "新建项目" requests unless the user explicitly asks
+for the full harness.
+EOF
+)"
+
+CLAUDE_BLOCK="$(cat <<EOF
+# AI Full Harness Trigger
+
+For explicit full harness project requests, follow:
+
+@$ROOT_DIR/adapters/AGENTS.md
+@$ROOT_DIR/global/GLOBAL_RULES.md
+@$ROOT_DIR/global/NEW_PROJECT_TRIGGER.md
+EOF
+)"
+
+GEMINI_BLOCK="$(cat <<EOF
+# AI Full Harness Trigger
+
+For explicit full harness project requests, follow:
+
+@$ROOT_DIR/adapters/AGENTS.md
+@$ROOT_DIR/global/GLOBAL_RULES.md
+@$ROOT_DIR/global/NEW_PROJECT_TRIGGER.md
+EOF
+)"
+
+install_marked_block "$HOME/.codex/AGENTS.md" "$CODEX_BLOCK"
+install_marked_block "$HOME/.claude/CLAUDE.md" "$CLAUDE_BLOCK"
+install_marked_block "$HOME/.gemini/GEMINI.md" "$GEMINI_BLOCK"
+
+mkdir -p "$HOME/.cursor/rules"
+cp "$ROOT_DIR/adapters/cursor-full-harness.mdc" "$HOME/.cursor/rules/full-harness-new-project.mdc"
+
+cat <<EOF
+Installed optional full Harness triggers.
+
+Updated:
+- $HOME/.codex/AGENTS.md
+- $HOME/.claude/CLAUDE.md
+- $HOME/.gemini/GEMINI.md
+- $HOME/.cursor/rules/full-harness-new-project.mdc
+
+Existing global files were backed up with .bak.$STAMP when present.
+EOF

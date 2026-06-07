@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+
+node_modules/
+dist/*
+!dist/README.md
+
+.DS_Store
+*.log
+
+CLAUDE.local.md
+*.local
