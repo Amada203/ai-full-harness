@@ -17,9 +17,10 @@ This file defines how AI agents should execute tasks in this project.
    - required documentation updates
    - required verification
 7. Make the smallest useful change.
-8. Run meaningful verification.
-9. Update harness or docs files when required.
-10. Report the result, verification evidence, risks, and any needed human check.
+8. Run test and debug checks appropriate to the project.
+9. Run final meaningful verification.
+10. Update harness or docs files when required.
+11. Report the result, verification evidence, risks, and any needed human check.
 
 ## Stage 0 Plan
 
@@ -34,8 +35,14 @@ This file defines how AI agents should execute tasks in this project.
 
 ## Stage 2 UI Design
 
-- Create or update HTML mockups, UI specs, and related notes under
-  `docs/design-review/`.
+- Create or update a standalone HTML mockup under `docs/design-review/` for
+  every visible UI flow or screen that needs user confirmation.
+- The standalone HTML mockup must be directly openable in a browser and must
+  show the actual UI layout, states, navigation, copy, and visual tokens clearly
+  enough for user review.
+- Use file names like `<feature>-mockups.html`, such as
+  `v5.5-missing-screens-mockups.html`.
+- Create or update UI specs and related notes under `docs/design-review/`.
 - Update `docs/design/` for durable UI rules or tokens.
 - Stop for explicit user confirmation before implementing visible UI changes.
 
@@ -46,6 +53,16 @@ This file defines how AI agents should execute tasks in this project.
 - Update `.ai/PROJECT_CONTEXT.md` before changing behavior, design, or execution
   order.
 - Update docs when product, technical, design, or data contracts change.
+
+## Stage 3.5 Test and Debug
+
+- Run targeted tests for changed logic.
+- Run type checks, lint checks, build checks, or app-specific verification when
+  available.
+- Reproduce and debug reported failures before claiming completion.
+- For UI work, run or open the implementation and verify it against the
+  confirmed standalone HTML mockup before moving to UI parity.
+- Record meaningful debugging findings or decisions in `.ai/PROJECT_HISTORY.md`.
 
 ## Stage 4 UI Parity
 

@@ -15,8 +15,9 @@ Harness Version: {{HARNESS_VERSION}}
 Use the standard delivery sequence:
 
 ```text
-Plan -> PRD -> UI HTML design -> user confirmation -> development -> UI parity
-check -> release artifact -> GitHub only after explicit approval
+Plan -> PRD -> UI HTML design -> user confirmation -> development -> Test and
+Debug -> UI parity check -> release artifact -> GitHub only after explicit
+approval
 ```
 
 ## Tech Stack

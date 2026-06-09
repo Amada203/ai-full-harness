@@ -33,7 +33,7 @@ Before starting any task, an AI agent must:
 | `docs/product/` | Product requirements, user stories, business rules, and acceptance criteria. | Update during Stage 1 and when product scope changes. |
 | `docs/technical/` | Architecture, data model, API contracts, and verification plans. | Update during Stage 1 and whenever technical contracts change. |
 | `docs/design/` | UI, interaction, visual, and design-token guidance. | Update before or during Stage 2 design work. |
-| `docs/design-review/` | HTML mockups, specs, screenshots, and UI parity reports. | Required before visible UI implementation. |
+| `docs/design-review/` | Standalone HTML mockups, specs, screenshots, and UI parity reports. | Required before visible UI implementation. |
 | `docs/data/` | Data dictionary, metric definitions, field rules, and delivery rules. | Update when data semantics or delivery rules change. |
 | `dist/` | Versioned release artifacts and release notes. | Use only for deliverables; update `dist/README.md` for each release. |
 | `scripts/check-harness.sh` | Local harness structure validator. | Keep aligned with required harness files. |
@@ -43,18 +43,26 @@ Before starting any task, an AI agent must:
 Follow this sequence:
 
 ```text
-Plan -> PRD -> UI HTML design -> user confirmation -> development -> UI parity
-check -> release artifact -> GitHub only after explicit approval
+Plan -> PRD -> UI HTML design -> user confirmation -> development -> Test and
+Debug -> UI parity check -> release artifact -> GitHub only after explicit
+approval
 ```
 
 ## Stage Gates
 
 - Stage 0 Plan must be accepted before writing PRD files.
 - Stage 1 PRD must be confirmed before UI design.
+- Stage 2 UI HTML design must produce a standalone HTML mockup under
+  `docs/design-review/` before user confirmation. The mockup must be directly
+  openable in a browser and clear enough to review layout, states, navigation,
+  copy, and visual tokens. Use file names like `<feature>-mockups.html`, such as
+  `v5.5-missing-screens-mockups.html`.
 - Stage 2 UI HTML design must be confirmed before implementing visible UI
   changes.
 - Stage 3 Development must stay within confirmed scope unless the user approves
   a scope change.
+- Stage 3.5 Test and Debug must run targeted tests, type/lint/build checks, or
+  app-specific verification where available before UI parity or release.
 - Stage 4 UI parity must clear P0 visual and interaction differences before
   completion is claimed.
 - Stage 5 Release artifact must include versioned output and `dist/README.md`
@@ -85,6 +93,8 @@ check -> release artifact -> GitHub only after explicit approval
 ## Verification
 
 - Run the smallest meaningful verification command before claiming completion.
+- Run targeted Test and Debug checks after development and before release or
+  completion claims.
 - For UI work, verify against the confirmed mockup or design spec.
 - For release work, verify artifact name, version, and install/deploy notes.
 - Report commands that could not be run and why.
