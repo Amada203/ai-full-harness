@@ -79,8 +79,16 @@ This file defines how AI agents should execute tasks in this project.
 
 ## Stage 6 GitHub
 
+- Ask whether to submit to GitHub after a complete, verified, user-acceptable
+  version is ready.
+- Before asking, summarize the completed scope, verification results, release
+  artifact status, and known risks.
+- If the user wants a GitHub submission, show `git status`, changed-file
+  summary, proposed commit message, and verification evidence first.
 - Commit, push, create PRs, publish, or deploy only after explicit user approval.
 - Before commit or push, inspect changed files and run verification.
+- If the user does not explicitly approve GitHub submission, keep the work local
+  and report the current local state.
 
 ## Final Response Checklist
 

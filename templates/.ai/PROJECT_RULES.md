@@ -67,7 +67,10 @@ approval
   completion is claimed.
 - Stage 5 Release artifact must include versioned output and `dist/README.md`
   notes when a deliverable is produced.
-- Stage 6 GitHub actions require explicit user approval.
+- Stage 6 GitHub must Ask whether to submit to GitHub after a complete,
+  verified, user-acceptable version is ready.
+- Stage 6 GitHub actions require explicit user approval before commit, push,
+  create PR, publish, or deploy.
 
 ## General Development Rules
 
@@ -103,6 +106,10 @@ approval
 ## Git and Release Rules
 
 - Check changed files before committing.
+- After a complete, verified version is ready, ask the user whether to submit to
+  GitHub.
+- Before any GitHub submission, show `git status`, changed-file summary,
+  proposed commit message, and verification evidence.
 - Commit messages must explain the purpose of the change.
 - Do not commit, push, create PRs, publish, or deploy unless the user explicitly
   asks.
