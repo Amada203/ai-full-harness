@@ -7,9 +7,11 @@ They must:
 1. Identify themselves as startup entry files.
 2. Point to `.ai/PROJECT_CONTEXT.md`.
 3. Point to `.ai/PROJECT_RULES.md`.
-4. Point to recent `.ai/PROJECT_HISTORY.md`.
-5. Point to `.ai/WORKFLOW.md`.
-6. State that `.ai/PROJECT_RULES.md` is the single source of truth.
+4. Point to `.ai/LIFECYCLE_STATE`.
+5. Point to `.ai/LIFECYCLE_BASELINE`.
+6. Point to recent `.ai/PROJECT_HISTORY.md`.
+7. Point to `.ai/WORKFLOW.md`.
+8. State that `.ai/PROJECT_RULES.md` is the single source of truth.
 
 They must not duplicate the full project rules. Duplication causes drift across
 Codex, Claude Code, Gemini CLI, Cursor, and future AI tools.

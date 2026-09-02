@@ -1,39 +1,53 @@
-# PRD
+# Product Requirements Document
 
-## Background
+## Problem and Evidence Reference
 
-TBD.
+<!-- REQUIRED: link the passed problem-framing evidence and summarize the root need -->
+
+## Core Outcome and Success Metrics
+
+<!-- REQUIRED: define the outcome and measurable leading and lagging indicators -->
 
 ## Goals
 
-- TBD.
+- <!-- REQUIRED: list the minimum product goals that serve the core outcome -->
 
-## Non-Goals
+## Non-Goals and Rejected Pseudo-Requirements
 
-- TBD.
+- <!-- REQUIRED: list excluded scope and explain why it does not serve the core outcome -->
 
-## Users
+## Users and Affected Parties
 
-- TBD.
+<!-- REQUIRED: identify direct users, operators, reviewers, and people who may be harmed -->
 
 ## User Stories
 
-- As a user, I want TBD so that TBD.
+- <!-- REQUIRED: describe a user need and the observable value it creates -->
 
-## Business Rules
+## Business Rules and First-Principles Constraints
 
-- TBD.
+- <!-- REQUIRED: define rules, invariants, and their evidence or rationale -->
 
-## Pages and States
+## Pages, Flows, and States
 
-| ID | Page | Default | Empty | Loading | Error |
-|----|------|---------|-------|---------|-------|
-| 01 | TBD | TBD | TBD | TBD | TBD |
+| ID | Surface or flow | Default | Empty | Loading | Error | Unauthorized | Recovery |
+|---|---|---|---|---|---|---|---|
+| 01 | <!-- REQUIRED: surface or flow --> | <!-- REQUIRED --> | <!-- REQUIRED --> | <!-- REQUIRED --> | <!-- REQUIRED --> | <!-- REQUIRED --> | <!-- REQUIRED --> |
+
+## Failure and Business-Backfire Scenarios
+
+<!-- REQUIRED: describe how the feature can fail technically or harm the business outcome -->
 
 ## Acceptance Criteria
 
-- TBD.
+- <!-- REQUIRED: write observable, testable acceptance criteria -->
+
+## Evidence and Verification Mapping
+
+| Requirement | Verification command or review | Evidence path | Gate |
+|---|---|---|---|
+| <!-- REQUIRED: requirement --> | <!-- REQUIRED: verification --> | <!-- REQUIRED: evidence --> | <!-- REQUIRED: gate --> |
 
 ## Open Questions
 
-- TBD.
+- <!-- REQUIRED: write none or list questions with owner and decision date -->

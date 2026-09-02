@@ -52,7 +52,8 @@ Harness 新建项目", or "full harness project".
    tech stack when relevant.
 3. Run \`$ROOT_DIR/bin/new-full-project <project-name> <target-parent>\`.
 4. Open the generated project and read the root entry file.
-5. Then read \`.ai/PROJECT_CONTEXT.md\`, \`.ai/PROJECT_RULES.md\`, recent
+5. Then read \`.ai/PROJECT_CONTEXT.md\`, \`.ai/PROJECT_RULES.md\`,
+   \`.ai/LIFECYCLE_STATE\`, \`.ai/LIFECYCLE_BASELINE\`, recent
    \`.ai/PROJECT_HISTORY.md\`, and \`.ai/WORKFLOW.md\`.
 6. Start at Stage 0 Plan.
 

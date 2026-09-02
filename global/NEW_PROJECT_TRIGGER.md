@@ -25,7 +25,8 @@ AI_PROJECT_STACK="..." AI_PROJECT_DESCRIPTION="..." \
 
 4. Open the generated project.
 5. Read root entry file, then `.ai/PROJECT_CONTEXT.md`,
-   `.ai/PROJECT_RULES.md`, recent `.ai/PROJECT_HISTORY.md`, and
+   `.ai/PROJECT_RULES.md`, `.ai/LIFECYCLE_STATE`,
+   `.ai/LIFECYCLE_BASELINE`, recent `.ai/PROJECT_HISTORY.md`, and
    `.ai/WORKFLOW.md`.
 6. Start at Stage 0 Plan.
 

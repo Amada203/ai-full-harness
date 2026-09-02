@@ -20,8 +20,8 @@ Examples:
 USAGE
 }
 
-PROJECT_STACK="${AI_PROJECT_STACK:-TBD}"
-PROJECT_DESCRIPTION="${AI_PROJECT_DESCRIPTION:-TBD}"
+PROJECT_STACK="${AI_PROJECT_STACK:-Not provided during initialization; resolve in Stage 0.}"
+PROJECT_DESCRIPTION="${AI_PROJECT_DESCRIPTION:-Not provided during initialization; resolve in Stage 0.}"
 NO_GIT=0
 POSITIONAL=()
 
@@ -77,6 +77,21 @@ if [[ -z "$PROJECT_NAME" || "$PROJECT_NAME" == *"/"* ]]; then
   exit 2
 fi
 
+if [[ "$PROJECT_NAME" == *$'\n'* || "$PROJECT_NAME" == *$'\r'* ]]; then
+  echo "Project name must be a single line." >&2
+  exit 2
+fi
+
+if [[ "$PROJECT_STACK" == *$'\n'* || "$PROJECT_STACK" == *$'\r'* ]]; then
+  echo "AI_PROJECT_STACK must be a single line." >&2
+  exit 2
+fi
+
+if [[ "$PROJECT_DESCRIPTION" == *$'\n'* || "$PROJECT_DESCRIPTION" == *$'\r'* ]]; then
+  echo "AI_PROJECT_DESCRIPTION must be a single line." >&2
+  exit 2
+fi
+
 if [[ ! -d "$TEMPLATE_DIR" ]]; then
   echo "Template directory not found: $TEMPLATE_DIR" >&2
   exit 1
@@ -93,6 +108,7 @@ fi
 
 mkdir -p "$PROJECT_DIR"
 cp -R "$TEMPLATE_DIR"/. "$PROJECT_DIR"/
+find "$PROJECT_DIR" -name '.DS_Store' -type f -delete
 
 escape_sed() {
   printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'
@@ -105,6 +121,9 @@ HARNESS_VERSION_ESCAPED="$(escape_sed "$HARNESS_VERSION")"
 TODAY_ESCAPED="$(date +%F)"
 
 while IFS= read -r file; do
+  if ! LC_ALL=C grep -Iq . "$file"; then
+    continue
+  fi
   tmp_file="${file}.tmp.$$"
   sed \
     -e "s/{{PROJECT_NAME}}/${PROJECT_NAME_ESCAPED}/g" \
@@ -120,6 +139,18 @@ if [[ -f "$PROJECT_DIR/scripts/check-harness.sh" ]]; then
   chmod +x "$PROJECT_DIR/scripts/check-harness.sh"
 fi
 
+if [[ -f "$PROJECT_DIR/scripts/check-lifecycle-gate.sh" ]]; then
+  chmod +x "$PROJECT_DIR/scripts/check-lifecycle-gate.sh"
+fi
+
+if [[ -f "$PROJECT_DIR/scripts/lifecycle-fingerprint.sh" ]]; then
+  chmod +x "$PROJECT_DIR/scripts/lifecycle-fingerprint.sh"
+fi
+
+if [[ -f "$PROJECT_DIR/scripts/record-lifecycle-gate.sh" ]]; then
+  chmod +x "$PROJECT_DIR/scripts/record-lifecycle-gate.sh"
+fi
+
 if [[ "$NO_GIT" -eq 0 ]] && command -v git >/dev/null 2>&1; then
   git -C "$PROJECT_DIR" init -q
 fi
@@ -130,6 +161,6 @@ Created full-harness project: $PROJECT_DIR
 Next steps:
 1. Open the project directory.
 2. Read AGENTS.md or the tool-specific entry file.
-3. Read .ai/PROJECT_CONTEXT.md, .ai/PROJECT_RULES.md, recent .ai/PROJECT_HISTORY.md, and .ai/WORKFLOW.md.
-4. Draft Stage 0 Plan and stop for user confirmation.
+3. Read .ai/PROJECT_CONTEXT.md, .ai/PROJECT_RULES.md, .ai/LIFECYCLE_STATE, .ai/LIFECYCLE_BASELINE, recent .ai/PROJECT_HISTORY.md, and .ai/WORKFLOW.md.
+4. Complete Stage 0 problem framing, record and check the plan gate, and stop for user confirmation.
 EOF
