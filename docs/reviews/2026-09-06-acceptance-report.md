@@ -32,8 +32,8 @@ promote any remote or human requirement.
 | Forged/wrong-repo/wrong-task/expired/revoked/replayed/over-budget deny | grant adversarial fixtures | L | PASS |
 | Path scope, protected paths, traversal, default branch, action ceiling deny | grant adversarial fixtures | L | PASS |
 | Budget consumption locked/atomic/bounded | consume-run fixture (3 of 4 succeed) | L | PASS |
-| Issuer provenance verification | requires central control ledger | R | **NOT DONE — explicit NO-GO boundary** |
-| Actual candidate branch/draft PR write under a grant | requires authorized remote pilot | R | **NOT DONE** |
+| Issuer provenance verification | ledger contract designed and owner-confirmed (`docs/superpowers/specs/2026-09-06-control-ledger-design.md`); chain verification implemented and tested in the controller | L | PASS (local); remote holding remains R |
+| Actual candidate branch/draft PR write under a grant | requires authorized remote pilot | R | **NOT DONE — checklist recorded** |
 
 ## 3. Portable continuity
 
@@ -78,16 +78,17 @@ promote any remote or human requirement.
 
 | Requirement | Evidence | Class | Result |
 | --- | --- | --- | --- |
-| `project-autopilot` controller (pinned reusable workflows, policy evaluator, candidate/PR executor, canary, feedback emitter) | repository does not exist locally or remotely; design evolved toward the grant + ledger model | R | **NOT STARTED — sequencing decision recorded below** |
+| Local controller implementation | `~/project-autopilot` (independent repo, commit e352e49): policy parser/evaluator, state machine, safety pins, kill switches, candidate/draft-PR orchestration, canary, feedback, ledger chain verification | L | PASS — 52 adversarial tests green, workflow security lint green |
+| Zero-mutation dry-run and H/unknown-risk non-promotion | controller e2e fixtures | L | PASS |
+| Draft-only workflows, static security checks | `scripts/check-workflow-security.mjs`, CI workflow | L | PASS |
+| Pinned controller release consumed by generated projects | requires remote publish | R | **NOT DONE — checklist recorded** |
+| Remote pilot exercising L/M/H, revoke, rollback | requires owner-authorized GitHub configuration | R | **NOT DONE — checklist recorded** |
 
-Sequencing note: the original controller plan predates the portable-
-continuity authority split. Its candidate-execution core is now gated by the
-externally issued grant and the unwritten control ledger. Building the
-controller before the owner confirms the ledger authority split (the spec's
-explicitly pending confirmation) would create a component wired to a trust
-root that does not exist. Recommendation: confirm the ledger design first,
-then implement the controller against `GITHUB_GRANT.yml` + ledger contracts
-in its own repository.
+Sequencing note resolved: the owner confirmed the ledger authority split on
+2026-09-06; the controller was then implemented locally against the
+`GITHUB_GRANT.yml` + ledger contracts. Recorded deviation: zero-dependency
+Node ESM + node:test instead of TypeScript/vitest/octokit (no-network local
+delivery; octokit integrates behind the narrow client interface).
 
 ## 9. Regression and hygiene (this review)
 
@@ -100,8 +101,13 @@ in its own repository.
 
 ## What would flip the overall decision
 
-1. Owner confirms the control-ledger authority split (spec §5, pending).
-2. Controller repository implemented against the grant/ledger contracts.
+1. ~~Owner confirms the control-ledger authority split~~ — DONE 2026-09-06.
+2. ~~Controller repository implemented against the grant/ledger contracts~~
+   — DONE locally (52/52 tests, static checks green).
 3. Owner-authorized remote pilot exercises enrollment, observe-only, L/M/H
-   fixtures, grant allow/deny, revoke, rollback on disposable private repos.
+   fixtures, grant allow/deny, revoke, rollback on disposable private repos
+   (checklist: `docs/autopilot-central-deployment-checklist.md`).
 4. Real multi-tool resume drill recorded as evidence.
+
+Overall decision remains NO-GO for remote autonomous delivery (items 3-4
+are R/H evidence), and GO for the complete local layer of both repositories.

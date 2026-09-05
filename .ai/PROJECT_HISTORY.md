@@ -89,3 +89,17 @@ work; merge/release/deploy/permission changes stay human per action. The
 data contract and invariants are recorded in
 docs/superpowers/specs/2026-09-06-control-ledger-design.md. This unblocks
 the separate project-autopilot controller repository.
+
+## 2026-09-06 — controller repository implemented locally
+
+With the ledger authority split confirmed, built the independent
+`~/project-autopilot` controller repository (own git, local commit only):
+gate-ordered orchestrator, safe policy parsing, L/M/H lanes, exact state
+machine, constitution/controller pinning, kill switches, candidate branch
+and draft-PR orchestration with dry-run and idempotent run ids, fail-closed
+canary, sanitized REVIEW-only feedback, and ledger chain verification.
+52 adversarial tests and workflow static security checks pass. Recorded
+deviation: zero-dependency Node ESM + node:test (no npm/network); octokit
+integrates behind the narrow client interface later. Added the owner-facing
+central deployment checklist; remote pilot and pinned release remain
+owner-authorized external steps. Nothing was pushed or released.
