@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — Central control ledger design
+
+- Recorded the owner-confirmed authority split: an append-only,
+  digest-chained control ledger held outside project and controller owns
+  issuance, revocation epochs, global run budget, and issuer identity.
+- Defined the issue/revoke/consume entry contract, chain-verification rules,
+  and fail-closed invariants in
+  docs/superpowers/specs/2026-09-06-control-ledger-design.md.
+
 ## Unreleased — Narrow GitHub candidate grant contract
 
 - Added a disabled-by-default `.autopilot/GITHUB_GRANT.yml` reference and a

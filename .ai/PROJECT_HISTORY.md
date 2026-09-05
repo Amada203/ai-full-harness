@@ -77,3 +77,15 @@ produced the first-principles/U-shape re-evaluation, adversarial review, and
 requirement-by-requirement acceptance report. Remote, controller, ledger,
 and real cross-tool evidence remain NO-GO boundaries; nothing was pushed,
 published, or registered.
+
+## 2026-09-06 — control ledger authority split confirmed
+
+The owner confirmed the central control ledger authority split for local
+design and implementation: issuance, revocation, global budget, and issuer
+identity belong to an append-only digest-chained ledger held outside both
+the project and the controller; the project keeps policy/constitution
+authority; the controller executes only grant+ledger-verified candidate
+work; merge/release/deploy/permission changes stay human per action. The
+data contract and invariants are recorded in
+docs/superpowers/specs/2026-09-06-control-ledger-design.md. This unblocks
+the separate project-autopilot controller repository.
