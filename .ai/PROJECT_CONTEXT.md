@@ -29,10 +29,12 @@ The independent controller lives in its own repository, not this template tree.
 - Controller cross-run control ledger authority awaits owner confirmation.
 - Complete candidate validation, autonomous promotion/recovery and central
   upgrade/feedback delivery are not deployed and verified end to end.
-- Generated projects now have local checkpoint snapshot/audit and four shared
-  startup integrations and generic refactor gates. Real tool-switch acceptance,
-  a project-specific interrupted data migration, and full portable knowledge-base
-  synchronization acceptance remain.
+- Generated projects have local checkpoint snapshot/audit, four shared startup
+  integrations, generic refactor gates, and the externally issued narrow GitHub
+  candidate grant contract with adversarial fixtures. Real tool-switch
+  acceptance, a project-specific interrupted data migration, OS-level
+  knowledge-sync permission denial, the central control ledger, the separate
+  controller repository, and any remote pilot remain.
 - Knowledge-base binding and one-way sync are locally implemented. Preview is
   read-only and owner approval is bound to canonical project/Vault identity;
   machine-specific bindings live under ignored `.ai-local/`. A versioned
@@ -48,9 +50,12 @@ requirements are consolidated in
 docs/superpowers/specs/2026-09-05-portable-continuity-design.md. This is pending
 confirmation, not runtime permission or completed functionality.
 
-Read-only registration audit is now available at `bin/check-global-registration`
-with `tests/test-global-registration.sh`; default route migration remains an
-explicitly authorized operation.
+Read-only registration audit is available at `bin/check-global-registration`;
+default-route migration (preview/apply/restore) remains an explicitly
+authorized operation. The 2026-09-06 first-principles/U-shape re-evaluation,
+adversarial review, and requirement-by-requirement acceptance report live in
+`docs/reviews/`; the overall platform decision is still NO-GO by the
+completion rule, with the local contract layer GO for merge.
 
 Portable continuity Tasks 1-3 and the knowledge-base binding/sync increment are
 locally implemented in this worktree. Their

@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased — Narrow GitHub candidate grant contract
+
+- Added a disabled-by-default `.autopilot/GITHUB_GRANT.yml` reference and a
+  fail-closed `scripts/check-autopilot-grant.sh` verifier for externally
+  issued, task-scoped candidate authority (candidate branch / draft PR only).
+- The verifier denies forged self-approval, wrong repository or task,
+  expired, revoked, replayed, or over-budget grants, path traversal,
+  protected paths, default branches, and out-of-scope actions, and suspends
+  eligibility when the Autopilot contract check fails.
+- `evaluate` proves local eligibility only; issuer provenance stays with the
+  trusted central control plane. Adversarial fixtures cover every denial.
+- Registration default-route migration (preview/apply/restore) and central
+  control-ledger wiring remain explicitly authorized future work.
+
 ## Unreleased — Architecture design evidence
 
 - Add Archify source/HTML/delivery receipt workflow under docs/architecture.

@@ -85,6 +85,31 @@ reason, and rejects any simultaneous constitution, enrollment, objectives, or
 protected-path change. Resume or enter `ACTIVE` only after the policy validator
 passes with the newly accepted fingerprint.
 
+## Narrow GitHub Candidate Grants
+
+Remote candidate authority (a candidate branch or a draft pull request) is
+bounded by `.autopilot/GITHUB_GRANT.yml`. Generated projects start with
+`grant_present: false`: no remote write is possible, and
+`scripts/check-autopilot-grant.sh status` exits `0` only for this disabled
+state.
+
+A grant is issued by an external trusted source, never by this project. It
+binds one repository identity, one task digest, an allowed path list, one
+branch prefix, the narrow actions `candidate_branch` and `draft_pr`, an expiry
+timestamp, a run budget, and a revocation epoch. The verifier:
+
+- requires the SHA-256 digest of an external approval artifact to match the
+  issued grant before any eligibility decision;
+- denies forged self-approval, wrong repository or task, expired, revoked,
+  replayed, or over-budget grants, path traversal, protected paths, default
+  branches, and any action outside the narrow candidate scope;
+- suspends all eligibility when the Autopilot contract check fails.
+
+`evaluate` answers local eligibility only. It is not an authorization: the
+trusted central control plane independently verifies issuer provenance before
+anything is written remotely. Merges, releases, deployments, and any
+workflow, permission, or secret change are never grantable.
+
 ## Harness Upgrades
 
 Harness upgrades arrive as review-only instructions or preview pull requests.

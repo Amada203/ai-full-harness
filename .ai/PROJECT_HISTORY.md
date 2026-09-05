@@ -64,3 +64,16 @@ and path escapes are rejected; partial writes record only completed entries,
 release the lock, and can resume idempotently. Focused binding/sync, generator,
 and full Harness regressions passed. No real Vault directory, GitHub write,
 global registration or publication was performed.
+
+## 2026-09-06 — grant contract and successor acceptance
+
+Successor agent resumed the interrupted delivery: snapshotted and then
+verified the whole worktree (12 suites green), implemented the externally
+issued narrow GitHub candidate grant (`GITHUB_GRANT.yml` +
+`check-autopilot-grant.sh` + adversarial fixtures), fixed three real defects
+the fixtures exposed (awk gsub silent truncation, protected-list comma
+split, default-branch allow), ran disposable-repo continuity drills, and
+produced the first-principles/U-shape re-evaluation, adversarial review, and
+requirement-by-requirement acceptance report. Remote, controller, ledger,
+and real cross-tool evidence remain NO-GO boundaries; nothing was pushed,
+published, or registered.

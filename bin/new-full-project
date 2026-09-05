@@ -216,6 +216,10 @@ if [[ -f "$PROJECT_DIR/scripts/transition-autopilot.sh" ]]; then
   chmod +x "$PROJECT_DIR/scripts/transition-autopilot.sh"
 fi
 
+if [[ -f "$PROJECT_DIR/scripts/check-autopilot-grant.sh" ]]; then
+  chmod +x "$PROJECT_DIR/scripts/check-autopilot-grant.sh"
+fi
+
 if [[ -f "$PROJECT_DIR/scripts/project-continuity.mjs" ]]; then
   chmod +x "$PROJECT_DIR/scripts/project-continuity.mjs"
 fi

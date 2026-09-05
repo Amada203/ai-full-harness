@@ -30,7 +30,7 @@
 - [x] Make audit classify `CONSISTENT`, `CHANGED`, `STALE_EVIDENCE`, `INVALID`, and `UNINITIALIZED`; only snapshot writes. Never execute a command stored in JSON. `UNKNOWN` remains reserved for future external scanners and is not emitted by this local command.
 - [x] Add the initial checkpoint template/project identity and require the script/schema structurally in `check-harness.sh`.
 - [x] Run focused tests, generator tests, lifecycle tests and `git diff --check`.
-- [ ] Update source context/history and the authorized existing Obsidian notes with evidence and limitations (source files complete; Obsidian retry pending).
+- [x] Update source context/history and the authorized existing Obsidian notes with evidence and limitations.
 
 ## Task 2: Startup integration across tools
 
@@ -49,11 +49,11 @@
 
 ## Task 4: Knowledge-base preview, first-use confirmation and sync
 
-- [ ] Add failing tests proving `preview` creates nothing, `bind` requires an explicit approval token tied to canonical Vault/project paths, and a new machine/path requires new confirmation.
-- [ ] Implement local uncommitted binding outside generated content, allowlisted Markdown-only one-way sync, content digests and atomic writes.
-- [ ] Reject symlink destinations, collisions, manual mirror divergence, source outside allowlist, credentials/customer data patterns, overwrite/delete requests and ambiguous partial failures.
-- [ ] Make retries idempotent and record `SYNCED`, `PENDING`, `CONFLICT`, or `BLOCKED`; never create a different Vault automatically.
-- [ ] Test permission denial and interrupted sync; sync the existing authorized notes after each material milestone.
+- [x] Add failing tests proving `preview` creates nothing, `bind` requires an explicit approval token tied to canonical Vault/project paths, and a new machine/path requires new confirmation.
+- [x] Implement local uncommitted binding outside generated content, allowlisted Markdown-only one-way sync, content digests and atomic writes.
+- [x] Reject symlink destinations, collisions, manual mirror divergence, source outside allowlist, credentials/customer data patterns, overwrite/delete requests and ambiguous partial failures.
+- [x] Make retries idempotent and record `SYNCED`, `PENDING`, `CONFLICT`, or `BLOCKED`; never create a different Vault automatically.
+- [ ] Test permission denial; interrupted/partial sync resume is covered. Authorized notes were synced after material milestones.
 
 ## Task 5: Safe default-generator registration migration
 
@@ -66,8 +66,8 @@
 
 ## Task 6: Externally authorized GitHub candidate scope
 
-- [ ] Define a signed/external grant reference with repository ID, task digest, allowed paths/actions, branch prefix, expiry, run/count/cost ceilings, issuer and revocation epoch; project files cannot issue it.
-- [ ] Add adversarial tests for forged local approval, wrong repository/task, path overlap, expired/revoked/replayed grants and concurrent budget consumption.
+- [x] Define a signed/external grant reference with repository ID, task digest, allowed paths/actions, branch prefix, expiry, run/count/cost ceilings, issuer and revocation epoch; project files cannot issue it. (`templates/.autopilot/GITHUB_GRANT.yml`, `scripts/check-autopilot-grant.sh`)
+- [x] Add adversarial tests for forged local approval, wrong repository/task, path overlap, expired/revoked/replayed grants and concurrent budget consumption. (`tests/test-autopilot-grant.sh`)
 - [ ] Wire grant verification to the central control-ledger design only after its authority split is explicitly approved.
 - [ ] Keep merge/default-branch, release/deploy, workflow/permission/secret/App/ruleset changes outside the grant and subject to per-action confirmation.
 - [ ] Run a disposable private GitHub pilot only under separate remote-write authorization.

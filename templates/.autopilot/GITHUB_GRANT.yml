@@ -1,0 +1,15 @@
+schema_version: 1
+grant_present: false
+grant_id: NONE
+issuer: NONE
+external_authority_ref: NONE
+approval_digest: NONE
+repository_id: NONE
+task_digest: NONE
+allowed_paths: []
+branch_prefix: NONE
+allowed_actions: []
+expires_at: NONE
+max_runs: 0
+runs_consumed: 0
+revocation_epoch: 0

@@ -10,6 +10,7 @@ ENROLLMENT_FILE="$AUTOPILOT_DIR/ENROLLMENT.yml"
 POLICY_FILE="$AUTOPILOT_DIR/POLICY.yml"
 PROTECTED_PATHS_FILE="$AUTOPILOT_DIR/PROTECTED_PATHS.yml"
 STATE_FILE="$AUTOPILOT_DIR/AUTOPILOT_STATE"
+GRANT_FILE="$AUTOPILOT_DIR/GITHUB_GRANT.yml"
 FINGERPRINTER="$ROOT_DIR/scripts/autopilot-fingerprint.sh"
 LIFECYCLE_CHECKER="$ROOT_DIR/scripts/check-lifecycle-gate.sh"
 
@@ -101,6 +102,7 @@ require_autopilot_structure() {
   require_regular_file ".autopilot/POLICY.yml" "$POLICY_FILE"
   require_regular_file ".autopilot/PROTECTED_PATHS.yml" "$PROTECTED_PATHS_FILE"
   require_regular_file ".autopilot/AUTOPILOT_STATE" "$STATE_FILE"
+  require_regular_file ".autopilot/GITHUB_GRANT.yml" "$GRANT_FILE"
 
   [[ -x "$FINGERPRINTER" ]] || fail "Autopilot fingerprinter is unavailable"
   [[ -x "$LIFECYCLE_CHECKER" ]] || fail "Lifecycle checker is unavailable"
@@ -393,6 +395,25 @@ parse_flat_yaml_file "$PROTECTED_PATHS_FILE" protected_paths \
   schema_version \
   protected_paths
 
+parse_flat_yaml_file "$GRANT_FILE" grant \
+  schema_version \
+  grant_present \
+  grant_id \
+  issuer \
+  external_authority_ref \
+  approval_digest \
+  repository_id \
+  task_digest \
+  allowed_paths \
+  branch_prefix \
+  allowed_actions \
+  expires_at \
+  max_runs \
+  runs_consumed \
+  revocation_epoch
+
+require_yaml_bool "$GRANT_FILE" grant_present
+
 parse_state_file
 
 [[ "$(yaml_value "$CONSTITUTION_FILE" schema_version)" == 1 ]] || \
@@ -403,6 +424,8 @@ parse_state_file
   fail "Unsupported policy schema"
 [[ "$(yaml_value "$PROTECTED_PATHS_FILE" schema_version)" == 1 ]] || \
   fail "Unsupported protected paths schema"
+[[ "$(yaml_value "$GRANT_FILE" schema_version)" == 1 ]] || \
+  fail "Unsupported grant schema"
 [[ "$(state_value SCHEMA_VERSION)" == 1 ]] || \
   fail "Unsupported Autopilot state schema"
 

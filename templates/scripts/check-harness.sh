@@ -29,6 +29,7 @@ required_files=(
   ".autopilot/OBJECTIVES.md"
   ".autopilot/PROTECTED_PATHS.yml"
   ".autopilot/AUTOPILOT_STATE"
+  ".autopilot/GITHUB_GRANT.yml"
   "docs/product/PRD.md"
   "docs/technical/TECHNICAL_PRD.md"
   "docs/design/README.md"
@@ -51,6 +52,7 @@ required_files=(
   "scripts/check-lifecycle-gate.sh"
   "scripts/autopilot-fingerprint.sh"
   "scripts/check-autopilot-contract.sh"
+  "scripts/check-autopilot-grant.sh"
   "scripts/lifecycle-fingerprint.sh"
   "scripts/record-lifecycle-gate.sh"
   "scripts/transition-autopilot.sh"
@@ -76,6 +78,7 @@ done
 for script in \
   scripts/autopilot-fingerprint.sh \
   scripts/check-autopilot-contract.sh \
+  scripts/check-autopilot-grant.sh \
   scripts/check-lifecycle-gate.sh \
   scripts/lifecycle-fingerprint.sh \
   scripts/record-lifecycle-gate.sh \
@@ -106,6 +109,7 @@ fi
 
 bash -n "$ROOT_DIR/scripts/autopilot-fingerprint.sh"
 bash -n "$ROOT_DIR/scripts/check-autopilot-contract.sh"
+bash -n "$ROOT_DIR/scripts/check-autopilot-grant.sh"
 bash -n "$ROOT_DIR/scripts/check-harness.sh"
 bash -n "$ROOT_DIR/scripts/check-lifecycle-gate.sh"
 bash -n "$ROOT_DIR/scripts/lifecycle-fingerprint.sh"
