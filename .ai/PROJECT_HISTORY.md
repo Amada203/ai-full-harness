@@ -1,0 +1,66 @@
+# Full Harness source history
+
+## 2026-09-05 — continuity requirements specification
+
+Consolidated the latest user requirements into the portable-continuity design:
+registration migration, evidence-based interruption recovery, refactoring,
+first-directory approval and bounded GitHub preauthorization. Explicitly pending
+confirmation; no new permission, global write or knowledge-base initialization.
+
+## 2026-09-05 — source-project multi-tool foundation
+
+Added shared source-project context/rules/history plus thin Codex/generic,
+Claude, Gemini and Cursor entries. These are distinct from the existing consumer
+templates and installation adapters. Preserved the unmerged-worktree boundary,
+explicit Git approval and current NO-GO status.
+
+Added tests/test-source-agent-entries.mjs for shared-source ordering, thin entry
+shape and Cursor activation. Initial execution failed because source entries
+were absent. Structural verification is not live tool-switch acceptance.
+
+Fresh verification completed: source entry, new-project generator, lifecycle,
+architecture, Autopilot contract and workflow static suites passed; git diff
+--check passed. No merge, global registration, commit or publication performed.
+
+Added read-only `bin/check-global-registration` plus shell regressions. It audits
+presence of the Full Harness marker, legacy references and symlink targets without
+writing global files. It does not perform the default-route migration.
+
+## 2026-09-06 — continuity Tasks 1-2
+
+Added generated project UUID identity, an atomic continuity checkpoint, and a
+read-only audit covering uninitialized/no-commit repositories, index/worktree
+drift, HEAD/branch drift, ignored files, corrupt records, out-of-root symlinks
+and inert malicious notes. Integrated the same audit command into Codex, Claude,
+Gemini and Cursor entries plus shared workflow rules. Full generator, lifecycle,
+architecture, Autopilot contract/workflow and whitespace suites passed. No real
+cross-tool semantic-resume claim, global install, commit, push or release.
+
+## 2026-09-06 — generic refactor Gate
+
+Added a stable refactor ID/status, locked transactional start/transition tools,
+design/downstream invalidation, plan and recovery records, and design/
+implementation gate integration. Regressions cover continuity prerequisite,
+unsafe/duplicate start, skipped/concurrent transitions, missing evidence,
+failed smoke and fingerprint drift. Full Harness suites passed. A generic
+fixture does not prove an actual project's data migration or truthful evidence;
+that remains a project-specific acceptance requirement.
+
+## 2026-09-06 — knowledge-base binding increment
+
+Added a read-only preview and approval-bound local binding command. Canonical
+project/Vault identity, generated project UUID, path collision and symlink
+checks prevent approval replay and implicit directory creation. Machine-local
+bindings are ignored under `.ai-local/`; no real Vault directory was created.
+Focused binding regressions passed. Versioned allowlist sync and conflict/
+partial-failure state remained the next increment.
+
+## 2026-09-06 — knowledge-base sync increment
+
+Added versioned `.ai/KNOWLEDGE_SYNC.yml` and generated `knowledge-sync.mjs`.
+Sync is project-to-Vault only, allowlisted to Markdown, digest-tracked and
+conflict-stopping. Manual mirror edits, symlinks, pre-existing files, secrets
+and path escapes are rejected; partial writes record only completed entries,
+release the lock, and can resume idempotently. Focused binding/sync, generator,
+and full Harness regressions passed. No real Vault directory, GitHub write,
+global registration or publication was performed.

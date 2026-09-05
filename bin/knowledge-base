@@ -1,0 +1,209 @@
+#!/usr/bin/env node
+'use strict';
+
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
+
+function fail(message) {
+  process.stderr.write(`knowledge-base: ${message}\n`);
+  process.exit(1);
+}
+
+function parseArguments(argv) {
+  if (argv.length === 0 || !['preview', 'bind'].includes(argv[0])) {
+    fail('usage: knowledge-base preview|bind --project PATH --vault PATH --folder NAME [--approval-ref sha256:...]');
+  }
+
+  const action = argv[0];
+  const values = {};
+  const allowed = new Set(['--project', '--vault', '--folder', '--approval-ref']);
+  for (let index = 1; index < argv.length; index += 2) {
+    const flag = argv[index];
+    const value = argv[index + 1];
+    if (!allowed.has(flag) || value === undefined || value.length === 0) {
+      fail(`invalid or missing value for ${flag || 'argument'}`);
+    }
+    if (Object.hasOwn(values, flag)) fail(`duplicate option: ${flag}`);
+    values[flag] = value;
+  }
+
+  for (const flag of ['--project', '--vault', '--folder']) {
+    if (!values[flag]) fail(`missing required option: ${flag}`);
+  }
+  if (action === 'preview' && values['--approval-ref']) {
+    fail('--approval-ref is only valid for bind');
+  }
+  if (action === 'bind' && !values['--approval-ref']) {
+    fail('bind requires --approval-ref');
+  }
+  return { action, values };
+}
+
+function existingDirectory(input, label) {
+  let stat;
+  try {
+    stat = fs.lstatSync(input);
+  } catch {
+    fail(`${label} does not exist: ${input}`);
+  }
+  if (stat.isSymbolicLink()) fail(`${label} must not be a symbolic link`);
+  if (!stat.isDirectory()) fail(`${label} must be a directory`);
+  return fs.realpathSync(input);
+}
+
+function validateFolder(folder) {
+  if (
+    folder === '.' || folder === '..' || folder.length > 120 ||
+    folder.includes('/') || folder.includes('\\') || /[\0\r\n]/.test(folder)
+  ) {
+    fail('folder must be one safe directory name');
+  }
+}
+
+function readProjectId(projectRoot) {
+  const projectIdPath = path.join(projectRoot, '.ai', 'PROJECT_ID');
+  let stat;
+  try {
+    stat = fs.lstatSync(projectIdPath);
+  } catch {
+    fail(`generated project identity is missing: ${projectIdPath}`);
+  }
+  if (!stat.isFile() || stat.isSymbolicLink()) fail('generated project identity must be a regular file');
+  const identityRecord = fs.readFileSync(projectIdPath, 'utf8').trim();
+  const identityMatch = /^PROJECT_ID=([^\r\n]+)$/.exec(identityRecord);
+  if (!identityMatch) fail('generated project identity record is malformed');
+  const projectId = identityMatch[1];
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(projectId)) {
+    fail('generated project identity is invalid');
+  }
+  return projectId;
+}
+
+function bindingRequest(values) {
+  const projectRoot = existingDirectory(values['--project'], 'project root');
+  const vaultRoot = existingDirectory(values['--vault'], 'Vault root');
+  const folder = values['--folder'];
+  validateFolder(folder);
+
+  const targetPath = path.resolve(vaultRoot, folder);
+  if (path.dirname(targetPath) !== vaultRoot) fail('knowledge directory escapes the Vault root');
+  const projectId = readProjectId(projectRoot);
+  const payload = {
+    schemaVersion: 1,
+    operation: 'BIND_KNOWLEDGE_BASE',
+    projectId,
+    projectRoot,
+    vaultRoot,
+    folder,
+    targetPath,
+  };
+  const approvalRef = `sha256:${crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex')}`;
+  return { ...payload, approvalRef };
+}
+
+function bindingPathFor(request) {
+  return path.join(request.projectRoot, '.ai-local', 'knowledge-base.json');
+}
+
+function readExistingBinding(bindingPath) {
+  if (!fs.existsSync(bindingPath)) return null;
+  const stat = fs.lstatSync(bindingPath);
+  if (!stat.isFile() || stat.isSymbolicLink()) fail('existing knowledge binding must be a regular file');
+  try {
+    return JSON.parse(fs.readFileSync(bindingPath, 'utf8'));
+  } catch {
+    fail('existing knowledge binding is invalid JSON');
+  }
+}
+
+function sameBinding(binding, request) {
+  return binding &&
+    binding.schemaVersion === request.schemaVersion &&
+    binding.projectId === request.projectId &&
+    binding.projectRoot === request.projectRoot &&
+    binding.vaultRoot === request.vaultRoot &&
+    binding.folder === request.folder &&
+    binding.targetPath === request.targetPath &&
+    binding.approvalRef === request.approvalRef;
+}
+
+function inspectTarget(request, allowExistingDirectory) {
+  if (!fs.existsSync(request.targetPath)) return;
+  const stat = fs.lstatSync(request.targetPath);
+  if (stat.isSymbolicLink()) fail('knowledge directory must not be a symbolic link');
+  if (!stat.isDirectory()) fail('knowledge directory collides with a non-directory path');
+  if (!allowExistingDirectory) fail('knowledge directory already exists without this project binding');
+}
+
+function preview(request) {
+  inspectTarget(request, false);
+  process.stdout.write(`${JSON.stringify({
+    action: 'PREVIEW',
+    writesPerformed: false,
+    approvalRef: request.approvalRef,
+    projectRoot: request.projectRoot,
+    vaultRoot: request.vaultRoot,
+    folder: request.folder,
+    targetPath: request.targetPath,
+  })}\n`);
+}
+
+function bind(request, suppliedApprovalRef) {
+  if (!/^sha256:[0-9a-f]{64}$/.test(suppliedApprovalRef)) fail('approval ref format is invalid');
+  const bindingPath = bindingPathFor(request);
+  const existing = readExistingBinding(bindingPath);
+
+  if (existing) {
+    if (!sameBinding(existing, request)) fail('project is already bound to a different knowledge directory');
+    if (suppliedApprovalRef !== request.approvalRef) fail('approval ref does not match this binding request');
+    inspectTarget(request, true);
+    process.stdout.write(`${JSON.stringify({ action: 'BOUND', idempotent: true, ...request })}\n`);
+    return;
+  }
+
+  inspectTarget(request, false);
+  if (suppliedApprovalRef !== request.approvalRef) fail('approval ref does not match this binding request');
+
+  const localDirectory = path.dirname(bindingPath);
+  if (fs.existsSync(localDirectory)) {
+    const stat = fs.lstatSync(localDirectory);
+    if (!stat.isDirectory() || stat.isSymbolicLink()) fail('.ai-local must be a regular directory');
+  }
+
+  let createdLocalDirectory = false;
+  let createdTargetDirectory = false;
+  const temporaryBinding = `${bindingPath}.tmp-${process.pid}`;
+  try {
+    if (!fs.existsSync(localDirectory)) {
+      fs.mkdirSync(localDirectory, { mode: 0o700 });
+      createdLocalDirectory = true;
+    }
+    fs.mkdirSync(request.targetPath, { mode: 0o700 });
+    createdTargetDirectory = true;
+    const record = {
+      schemaVersion: request.schemaVersion,
+      projectId: request.projectId,
+      projectRoot: request.projectRoot,
+      vaultRoot: request.vaultRoot,
+      folder: request.folder,
+      targetPath: request.targetPath,
+      approvalRef: request.approvalRef,
+      boundAt: new Date().toISOString(),
+    };
+    fs.writeFileSync(temporaryBinding, `${JSON.stringify(record, null, 2)}\n`, { flag: 'wx', mode: 0o600 });
+    fs.renameSync(temporaryBinding, bindingPath);
+  } catch (error) {
+    try { if (fs.existsSync(temporaryBinding)) fs.unlinkSync(temporaryBinding); } catch {}
+    try { if (createdTargetDirectory) fs.rmdirSync(request.targetPath); } catch {}
+    try { if (createdLocalDirectory) fs.rmdirSync(localDirectory); } catch {}
+    fail(`binding failed without retaining partial state: ${error.message}`);
+  }
+
+  process.stdout.write(`${JSON.stringify({ action: 'BOUND', idempotent: false, ...request })}\n`);
+}
+
+const { action, values } = parseArguments(process.argv.slice(2));
+const request = bindingRequest(values);
+if (action === 'preview') preview(request);
+else bind(request, values['--approval-ref']);

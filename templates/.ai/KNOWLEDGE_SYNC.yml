@@ -1,0 +1,13 @@
+schema_version: 1
+authority: project_repository
+direction: project_to_vault
+conflict_policy: stop
+allowlist:
+  - .ai/PROJECT_CONTEXT.md
+  - .ai/PROJECT_HISTORY.md
+  - docs/product/PRD.md
+  - docs/technical/TECHNICAL_PRD.md
+  - docs/architecture/README.md
+  - docs/lifecycle/SMOKE_TEST_REPORT.md
+  - docs/lifecycle/ADVERSARIAL_REVIEW.md
+  - docs/lifecycle/RETROSPECTIVE.md

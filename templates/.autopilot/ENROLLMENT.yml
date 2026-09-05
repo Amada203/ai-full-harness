@@ -1,0 +1,6 @@
+schema_version: 1
+autopilot_enabled: {{AUTOPILOT_ENABLED}}
+controller_repository: Amada203/project-autopilot
+controller_ref: {{AUTOPILOT_CONTROLLER_REF}}
+auto_activate_after_stage0: {{AUTOPILOT_AUTO_ACTIVATE}}
+requested_by: owner

@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased — Architecture design evidence
+
+- Add Archify source/HTML/delivery receipt workflow under docs/architecture.
+- Require pinned tool contents, showcase validation, technical node references,
+  and artifact/source digests in the existing design gate.
+- Include architecture and tool lock in design fingerprints. Keep original PRD
+  paths and require reviewed adoption for existing projects.
+- Local tool snapshot is 2.17.0-dev.1; an upstream release/distribution is not
+  attested. Browser measurements and visual judgment are separate evidence.
+
+## 2.3.0 — 2026-09-04
+
+- Added a disabled-by-default, data-only Project Autopilot enrollment contract.
+- Added deterministic contract fingerprints and a fail-closed validator that
+  never sources project-controlled Autopilot data.
+- Added locked, transactional enrollment state transitions with rollback and
+  automatic `SAFE_STOP` after repeated failures.
+- Added read-only enrollment and review-only Harness upgrade receiver workflows
+  with pinned actions and explicit minimum permissions.
+- Added operator guidance for GitHub App authorization, manual safety
+  boundaries, sanitized Harness feedback, and business-code separation.
+- Kept existing projects unchanged; adoption requires an explicit,
+  version-aware reviewed migration.
+
 ## 2.2.0 — 2026-09-01
 
 - Added deterministic lifecycle fingerprints and stale-evidence detection.

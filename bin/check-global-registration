@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+target="${1:-$HOME/.codex/AGENTS.md}"
+if [[ ! -f "$target" ]]; then echo "registration: MISSING ($target)"; exit 2; fi
+if [[ -L "$target" ]]; then echo "registration: BLOCKED symlink target ($target)" >&2; exit 3; fi
+if grep -q 'ai-full-harness:new-project:start' "$target"; then
+  echo "registration: Full Harness trigger present (explicit-only status requires review)"
+else
+  echo "registration: Full Harness trigger absent"
+fi
+grep -q 'ai-workflow-config' "$target" && echo "registration: legacy workflow reference present" || true
+grep -q 'new-full-project' "$target" && echo "registration: generator reference present" || true
+echo "registration: read-only audit complete; no configuration changed"

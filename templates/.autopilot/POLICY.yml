@@ -1,0 +1,9 @@
+schema_version: 1
+risk_level: M
+promotion_lane: observe_only
+auto_merge_l: false
+auto_promote_m: false
+production_deploy: false
+daily_budget: 0
+approved_test_commands: []
+allowed_paths: []

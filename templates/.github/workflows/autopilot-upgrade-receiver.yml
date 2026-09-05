@@ -1,0 +1,111 @@
+name: Autopilot Harness Upgrade Receiver
+
+on:
+  workflow_dispatch:
+    inputs:
+      harness_version:
+        description: Harness version proposed for review.
+        required: true
+        type: string
+      manifest_sha:
+        description: Full SHA-256 digest of the proposed Harness manifest.
+        required: true
+        type: string
+      rollback_ref:
+        description: Rollback reference for the currently installed Harness.
+        required: true
+        type: string
+  repository_dispatch:
+    types:
+      - ai-full-harness-upgrade
+
+permissions:
+  contents: read
+  actions: read
+  checks: read
+  pull-requests: read
+
+jobs:
+  review-upgrade:
+    name: Create review-only upgrade instruction
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Check Harness structure
+        shell: bash
+        run: scripts/check-harness.sh
+
+      - name: Check Autopilot contract
+        shell: bash
+        run: scripts/check-autopilot-contract.sh enrollment
+
+      - name: Validate upgrade manifest fields
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_ACTION: ${{ github.event.action }}
+          INPUT_VERSION: ${{ inputs.harness_version }}
+          INPUT_MANIFEST_SHA: ${{ inputs.manifest_sha }}
+          INPUT_ROLLBACK_REF: ${{ inputs.rollback_ref }}
+          PAYLOAD_VERSION: ${{ github.event.client_payload.harness_version }}
+          PAYLOAD_MANIFEST_SHA: ${{ github.event.client_payload.manifest_sha }}
+          PAYLOAD_ROLLBACK_REF: ${{ github.event.client_payload.rollback_ref }}
+        run: |
+          set -euo pipefail
+
+          case "$EVENT_NAME" in
+            workflow_dispatch)
+              harness_version="$INPUT_VERSION"
+              manifest_sha="$INPUT_MANIFEST_SHA"
+              rollback_ref="$INPUT_ROLLBACK_REF"
+              ;;
+            repository_dispatch)
+              if [[ "$DISPATCH_ACTION" != ai-full-harness-upgrade ]]; then
+                echo "Unexpected repository_dispatch action: $DISPATCH_ACTION" >&2
+                exit 1
+              fi
+              harness_version="$PAYLOAD_VERSION"
+              manifest_sha="$PAYLOAD_MANIFEST_SHA"
+              rollback_ref="$PAYLOAD_ROLLBACK_REF"
+              ;;
+            *)
+              echo "Unsupported event: $EVENT_NAME" >&2
+              exit 1
+              ;;
+          esac
+
+          [[ "$harness_version" =~ ^[0-9]+[.][0-9]+[.][0-9]+(-[A-Za-z0-9._-]+)?$ ]] || {
+            echo "Invalid Harness version" >&2
+            exit 1
+          }
+          [[ "$manifest_sha" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+            echo "Invalid Harness manifest digest" >&2
+            exit 1
+          }
+          [[ "$rollback_ref" =~ ^[A-Za-z0-9._:/@%+-]+$ ]] || {
+            echo "Invalid rollback reference" >&2
+            exit 1
+          }
+
+          mkdir -p dist/autopilot-upgrade-review
+          {
+            echo "# Harness Upgrade Review"
+            echo
+            echo "Decision: REVIEW"
+            echo "Harness Version: $harness_version"
+            echo "Manifest Digest: $manifest_sha"
+            echo "Rollback Reference: $rollback_ref"
+            echo
+            echo "This workflow creates a review artifact only."
+            echo "It does not change business code, policy, secrets, workflows, or the default branch."
+          } > dist/autopilot-upgrade-review/README.md
+
+      - name: Upload review instruction
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: harness-upgrade-review
+          path: dist/autopilot-upgrade-review/README.md

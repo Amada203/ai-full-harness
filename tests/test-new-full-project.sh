@@ -45,6 +45,20 @@ assert_contains() {
   fi
 }
 
+expect_generator_failure() {
+  local label="$1"
+  shift
+
+  if "$@" >"$TMP_DIR/generator.out" 2>"$TMP_DIR/generator.err"; then
+    echo "$label" >&2
+    exit 1
+  fi
+  if [[ ! -s "$TMP_DIR/generator.err" ]]; then
+    echo "$label (missing failure reason)" >&2
+    exit 1
+  fi
+}
+
 assert_file "$PROJECT_DIR/AGENTS.md"
 assert_file "$PROJECT_DIR/CLAUDE.md"
 assert_file "$PROJECT_DIR/GEMINI.md"
@@ -56,12 +70,20 @@ assert_file "$PROJECT_DIR/.ai/WORKFLOW.md"
 assert_file "$PROJECT_DIR/.ai/HARNESS_VERSION"
 assert_file "$PROJECT_DIR/.ai/LIFECYCLE_STATE"
 assert_file "$PROJECT_DIR/.ai/LIFECYCLE_BASELINE"
+assert_file "$PROJECT_DIR/.autopilot/CONSTITUTION.yml"
+assert_file "$PROJECT_DIR/.autopilot/ENROLLMENT.yml"
+assert_file "$PROJECT_DIR/.autopilot/POLICY.yml"
+assert_file "$PROJECT_DIR/.autopilot/OBJECTIVES.md"
+assert_file "$PROJECT_DIR/.autopilot/PROTECTED_PATHS.yml"
+assert_file "$PROJECT_DIR/.autopilot/AUTOPILOT_STATE"
 assert_file "$PROJECT_DIR/docs/product/PRD.md"
 assert_file "$PROJECT_DIR/docs/technical/TECHNICAL_PRD.md"
 assert_file "$PROJECT_DIR/docs/design/README.md"
 assert_file "$PROJECT_DIR/docs/design-review/README.md"
 assert_file "$PROJECT_DIR/docs/data/DATA_DICT.md"
 assert_file "$PROJECT_DIR/docs/data/DELIVERY_RULES.md"
+assert_file "$PROJECT_DIR/docs/autopilot/README.md"
+assert_file "$PROJECT_DIR/docs/autopilot/FEEDBACK.md"
 assert_file "$PROJECT_DIR/docs/lifecycle/README.md"
 assert_file "$PROJECT_DIR/docs/lifecycle/PROBLEM_FRAMING.md"
 assert_file "$PROJECT_DIR/docs/lifecycle/DESIGN_CHALLENGE.md"
@@ -73,9 +95,14 @@ assert_file "$PROJECT_DIR/docs/lifecycle/IMPROVEMENT_PROPOSAL.md"
 assert_file "$PROJECT_DIR/dist/README.md"
 assert_file "$PROJECT_DIR/scripts/check-harness.sh"
 assert_file "$PROJECT_DIR/scripts/check-lifecycle-gate.sh"
+assert_file "$PROJECT_DIR/scripts/autopilot-fingerprint.sh"
+assert_file "$PROJECT_DIR/scripts/check-autopilot-contract.sh"
 assert_file "$PROJECT_DIR/scripts/lifecycle-fingerprint.sh"
 assert_file "$PROJECT_DIR/scripts/record-lifecycle-gate.sh"
+assert_file "$PROJECT_DIR/scripts/transition-autopilot.sh"
 assert_file "$PROJECT_DIR/.github/workflows/harness-gates.yml"
+assert_file "$PROJECT_DIR/.github/workflows/autopilot-enrollment.yml"
+assert_file "$PROJECT_DIR/.github/workflows/autopilot-upgrade-receiver.yml"
 assert_dir "$PROJECT_DIR/.git"
 
 assert_missing "$PROJECT_DIR/PROJECT_CONTEXT.md"
@@ -88,11 +115,24 @@ assert_contains "$PROJECT_DIR/.ai/PROJECT_CONTEXT.md" "Stage 0 Plan"
 assert_contains "$PROJECT_DIR/.ai/PROJECT_CONTEXT.md" 'React / Node.js & shell \ tools'
 assert_contains "$PROJECT_DIR/.ai/PROJECT_CONTEXT.md" 'A demo / app & harness \ path'
 assert_contains "$PROJECT_DIR/.ai/PROJECT_CONTEXT.md" "Risk Level: M"
-assert_contains "$PROJECT_DIR/.ai/HARNESS_VERSION" "2.2.0"
+assert_contains "$PROJECT_DIR/.ai/HARNESS_VERSION" "2.3.0"
 assert_contains "$PROJECT_DIR/.ai/LIFECYCLE_STATE" "RISK_LEVEL=M"
 assert_contains "$PROJECT_DIR/.ai/LIFECYCLE_STATE" "PLAN_STATUS=BLOCKED"
 assert_contains "$PROJECT_DIR/.ai/LIFECYCLE_BASELINE" "PLAN_FINGERPRINT=UNRECORDED"
+assert_contains "$PROJECT_DIR/.autopilot/ENROLLMENT.yml" "autopilot_enabled: false"
+assert_contains "$PROJECT_DIR/.autopilot/ENROLLMENT.yml" "controller_ref: UNCONFIGURED"
+assert_contains "$PROJECT_DIR/.autopilot/ENROLLMENT.yml" "auto_activate_after_stage0: false"
+assert_contains "$PROJECT_DIR/.autopilot/AUTOPILOT_STATE" "AUTOPILOT_ENABLED=false"
+assert_contains "$PROJECT_DIR/.autopilot/AUTOPILOT_STATE" "STATE=NEW"
+assert_contains "$PROJECT_DIR/.autopilot/AUTOPILOT_STATE" "CONTRACT_FINGERPRINT=UNRECORDED"
 assert_contains "$PROJECT_DIR/docs/lifecycle/ADVERSARIAL_REVIEW.md" "Data, Model, and Agent Logic Attacks"
+assert_contains "$PROJECT_DIR/docs/autopilot/README.md" "The App is not downloaded to"
+assert_contains "$PROJECT_DIR/docs/autopilot/README.md" "review-only instructions or preview pull requests"
+assert_contains "$PROJECT_DIR/docs/autopilot/README.md" "required workflow"
+assert_contains "$PROJECT_DIR/docs/autopilot/FEEDBACK.md" "decision: REVIEW"
+assert_contains "$PROJECT_DIR/docs/autopilot/FEEDBACK.md" 'must not write `APPROVED`, `APPLIED`'
+assert_contains "$PROJECT_DIR/AGENTS.md" "scripts/check-autopilot-contract.sh"
+assert_contains "$PROJECT_DIR/AGENTS.md" "never source"
 assert_contains "$PROJECT_DIR/docs/data/DATA_DICT.md" "<!-- REQUIRED:"
 assert_contains "$PROJECT_DIR/docs/data/DELIVERY_RULES.md" "<!-- REQUIRED:"
 assert_contains "$PROJECT_DIR/.ai/PROJECT_RULES.md" ".ai/PROJECT_RULES.md is the single source of truth"
@@ -138,12 +178,33 @@ if [[ ! -x "$PROJECT_DIR/scripts/lifecycle-fingerprint.sh" ]]; then
   echo "Expected lifecycle-fingerprint.sh to be executable" >&2
   exit 1
 fi
+[[ -x "$PROJECT_DIR/scripts/autopilot-fingerprint.sh" ]] || {
+  echo "Expected autopilot-fingerprint.sh to be executable" >&2
+  exit 1
+}
+[[ -x "$PROJECT_DIR/scripts/check-autopilot-contract.sh" ]] || {
+  echo "Expected check-autopilot-contract.sh to be executable" >&2
+  exit 1
+}
 [[ -x "$PROJECT_DIR/scripts/record-lifecycle-gate.sh" ]] || {
   echo "Expected record-lifecycle-gate.sh to be executable" >&2
   exit 1
 }
+[[ -x "$PROJECT_DIR/scripts/transition-autopilot.sh" ]] || {
+  echo "Expected transition-autopilot.sh to be executable" >&2
+  exit 1
+}
 
 "$PROJECT_DIR/scripts/check-harness.sh"
+
+mv "$PROJECT_DIR/.github/workflows/autopilot-enrollment.yml" \
+  "$PROJECT_DIR/.github/workflows/autopilot-enrollment.yml.missing"
+if "$PROJECT_DIR/scripts/check-harness.sh" >/dev/null 2>&1; then
+  echo "Expected check-harness to require the Autopilot enrollment workflow" >&2
+  exit 1
+fi
+mv "$PROJECT_DIR/.github/workflows/autopilot-enrollment.yml.missing" \
+  "$PROJECT_DIR/.github/workflows/autopilot-enrollment.yml"
 
 cp "$PROJECT_DIR/AGENTS.md" "$PROJECT_DIR/AGENTS.md.valid"
 awk '!/\.ai\/LIFECYCLE_STATE/' "$PROJECT_DIR/AGENTS.md" > \
@@ -175,6 +236,40 @@ DEFAULT_PROJECT_DIR="$TMP_DIR/default-values-app"
 "$ROOT_DIR/bin/new-full-project" --no-git default-values-app "$TMP_DIR" >/dev/null
 assert_contains "$DEFAULT_PROJECT_DIR/.ai/PROJECT_CONTEXT.md" \
   "Not provided during initialization; resolve in Stage 0."
+
+PINNED_CONTROLLER_REF=0123456789abcdef0123456789abcdef01234567
+AUTOPILOT_PROJECT_DIR="$TMP_DIR/autopilot-enabled-app"
+"$ROOT_DIR/bin/new-full-project" --no-git --autopilot enabled \
+  --autopilot-controller-ref "$PINNED_CONTROLLER_REF" \
+  autopilot-enabled-app "$TMP_DIR" >/dev/null
+assert_contains "$AUTOPILOT_PROJECT_DIR/.autopilot/ENROLLMENT.yml" \
+  "autopilot_enabled: true"
+assert_contains "$AUTOPILOT_PROJECT_DIR/.autopilot/ENROLLMENT.yml" \
+  "controller_ref: $PINNED_CONTROLLER_REF"
+assert_contains "$AUTOPILOT_PROJECT_DIR/.autopilot/ENROLLMENT.yml" \
+  "auto_activate_after_stage0: true"
+assert_contains "$AUTOPILOT_PROJECT_DIR/.autopilot/AUTOPILOT_STATE" \
+  "AUTOPILOT_ENABLED=true"
+
+expect_generator_failure \
+  "Expected --autopilot enabled without controller ref to fail" \
+  "$ROOT_DIR/bin/new-full-project" --no-git --autopilot enabled \
+  missing-controller-ref-app "$TMP_DIR"
+
+expect_generator_failure \
+  "Expected invalid --autopilot mode to fail" \
+  "$ROOT_DIR/bin/new-full-project" --no-git --autopilot maybe \
+  invalid-autopilot-mode-app "$TMP_DIR"
+
+expect_generator_failure \
+  "Expected short controller ref to fail" \
+  "$ROOT_DIR/bin/new-full-project" --no-git --autopilot enabled \
+  --autopilot-controller-ref abc short-controller-ref-app "$TMP_DIR"
+
+expect_generator_failure \
+  "Expected disabled Autopilot to reject controller ref" \
+  "$ROOT_DIR/bin/new-full-project" --no-git --autopilot-controller-ref \
+  "$PINNED_CONTROLLER_REF" disabled-controller-ref-app "$TMP_DIR"
 
 if rg -n '(^|[^A-Za-z])TBD([^A-Za-z]|$)' "$PROJECT_DIR/docs" >/dev/null; then
   echo "Expected generated documentation to use explicit required markers instead of TBD" >&2

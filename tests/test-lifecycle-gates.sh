@@ -179,6 +179,9 @@ complete_design() {
     "## Design Gate Decision" \
     "Accepted by reviewer R on 2026-08-31."
   set_state DESIGN_STATUS PASS
+  cp "$ROOT_DIR/tests/fixtures/architecture.archify.json" "$PROJECT_DIR/docs/architecture/ARCHITECTURE.archify.json"
+  printf '\n[Architecture](../architecture/ARCHITECTURE.html)\nARCH:author submits requirements\nARCH:renderer delivers HTML\nARCH:reviewer examines evidence\n' >> "$PROJECT_DIR/docs/technical/TECHNICAL_PRD.md"
+  node "$PROJECT_DIR/scripts/architecture.mjs" build >/dev/null
 }
 
 write_prototype() {
@@ -342,6 +345,12 @@ expect_fail "Required evidence is incomplete" "$GATE" design
 complete_design
 expect_fail "Design fingerprint is not recorded" "$GATE" design
 "$RECORD" design >/dev/null
+"$GATE" design >/dev/null
+
+cp "$PROJECT_DIR/docs/architecture/README.md" "$TEST_DIR/architecture-readme"
+printf '\nArchitecture review changed.\n' >> "$PROJECT_DIR/docs/architecture/README.md"
+expect_fail "Design fingerprint is stale" "$GATE" design
+cp "$TEST_DIR/architecture-readme" "$PROJECT_DIR/docs/architecture/README.md"
 "$GATE" design >/dev/null
 
 set_state PROTOTYPE_STATUS NA

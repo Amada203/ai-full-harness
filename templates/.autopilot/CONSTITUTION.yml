@@ -1,0 +1,8 @@
+schema_version: 1
+direct_default_branch_write: false
+self_approve_pull_request: false
+modify_autopilot_contract: false
+modify_harness_controls: false
+read_or_export_secrets: false
+run_candidate_code_with_secrets: false
+auto_promote_high_risk: false

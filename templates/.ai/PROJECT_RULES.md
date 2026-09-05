@@ -8,17 +8,20 @@ tool-specific rule conflicts with this file, follow this file.
 
 Before starting any task, an AI agent must:
 
-1. Read `.ai/PROJECT_CONTEXT.md`.
-2. Read `.ai/PROJECT_RULES.md`.
-3. Read `.ai/LIFECYCLE_STATE` without sourcing or executing it.
-4. Read `.ai/LIFECYCLE_BASELINE` without sourcing or executing it.
-5. Read recent `.ai/PROJECT_HISTORY.md` entries. For release work, regression
+1. Run `node scripts/project-continuity.mjs audit`. Treat `UNINITIALIZED` as a
+   fresh-project state only; reconcile every other non-consistent result before
+   relying on recorded progress. Audit never approves or repairs work.
+2. Read `.ai/PROJECT_CONTEXT.md`.
+3. Read `.ai/PROJECT_RULES.md`.
+4. Read `.ai/LIFECYCLE_STATE` without sourcing or executing it.
+5. Read `.ai/LIFECYCLE_BASELINE` without sourcing or executing it.
+6. Read recent `.ai/PROJECT_HISTORY.md` entries. For release work, regression
    investigation, or resumed old tasks, read more history as needed.
-6. Read `.ai/WORKFLOW.md`.
-7. Read the relevant product, technical, design, data, and lifecycle evidence.
-8. Identify the current stage, risk level, applicable gate, and next allowed
+7. Read `.ai/WORKFLOW.md`.
+8. Read the relevant product, technical, design, data, and lifecycle evidence.
+9. Identify the current stage, risk level, applicable gate, and next allowed
    action.
-9. If a required file cannot be read, report that first and do not advance.
+10. If a required file cannot be read, report that first and do not advance.
 
 ## Document and Directory Map
 
@@ -35,6 +38,9 @@ Before starting any task, an AI agent must:
 | `.ai/PROJECT_HISTORY.md` | Dated decisions, risk changes, verification, and rationale. | Append after meaningful changes; do not use as current state. |
 | `.ai/WORKFLOW.md` | Standard task execution process. | Update when execution stages change. |
 | `.ai/HARNESS_VERSION` | Harness template version used by this project. | Update only through a harness upgrade. |
+| `.ai/KNOWLEDGE_SYNC.yml` | Versioned one-way Markdown allowlist; the project repository is the authority. | Do not add source, logs, secrets, customer data, or local absolute paths. |
+| `.ai-local/knowledge-base.json` | Machine-local approved Vault binding. | Never commit; create only after preview and explicit first-directory confirmation. |
+| `.ai-local/knowledge-sync-state.json` | Machine-local mirror digests, pending work, and conflict state. | Update only through `knowledge-sync.mjs`; never use as lifecycle approval. |
 | `docs/product/` | Product requirements, stories, rules, outcomes, and acceptance criteria. | Update during Stage 1 and when scope changes. |
 | `docs/technical/` | Architecture, data model, contracts, failure design, and verification plan. | Update during Stage 1 and when technical contracts change. |
 | `docs/design/` | Durable UI, interaction, visual, and accessibility guidance. | Update before or during Stage 2 design work. |
@@ -42,14 +48,51 @@ Before starting any task, an AI agent must:
 | `docs/data/` | Data dictionary, metric definitions, field rules, and delivery rules. | Update when data semantics change. |
 | `docs/lifecycle/` | First-principles, U-shaped, smoke-test, adversarial, and retrospective evidence. | Complete the relevant file before changing its gate to a passing status. |
 | `docs/lifecycle/IMPROVEMENT_PROPOSAL.md` | Review-only proposal for reusable harness learning. | Use `NONE - reason` or a complete `PROPOSED` record; never self-approve or self-apply it. |
+| `docs/lifecycle/REFACTOR_PLAN.md` | Active refactor baseline, architecture delta, migration and rollback design. | Complete after `start-refactor.sh`; changes invalidate design and downstream evidence. |
+| `docs/lifecycle/REFACTOR_RECOVERY.md` | Actual compatibility, interrupted migration, restore and reconciliation evidence. | Required before an active refactor can reach PASS/implementation. |
 | `dist/` | Versioned release artifacts and release notes. | Use only for deliverables and update `dist/README.md`. |
 | `scripts/check-harness.sh` | Structural harness validator. | Keep aligned with required harness files. |
 | `scripts/check-lifecycle-gate.sh` | Stage dependency and evidence validator. | Run for the current gate and keep aligned with lifecycle evidence. |
 | `scripts/lifecycle-fingerprint.sh` | Deterministic evidence-scope fingerprint calculator. | Read-only; filenames with newlines are rejected. |
 | `scripts/record-lifecycle-gate.sh` | Transactional gate recorder and downstream invalidator. | Use after evidence/status completion and before the read-only check. |
+| `scripts/knowledge-sync.mjs` | Read-only mirror audit and allowlisted project-to-Vault synchronization. | `CONFLICT`/`INVALID` stops writes; mirror failures do not roll back project code. |
 | `.github/workflows/harness-gates.yml` | Fixed final-gate CI enforcement. | Keep the literal `github` gate; do not select from `CURRENT_GATE`. |
 
 ## Mandatory Operating Disciplines
+
+### Controlled Refactoring
+
+- Record a consistent continuity snapshot and a passing plan gate before
+  `scripts/start-refactor.sh <stable-id>`.
+- Preserve observable behavior, callers, data compatibility and rollback
+  boundaries in `REFACTOR_PLAN.md`; active refactors invalidate design onward.
+- Advance only through `PLANNED -> IN_PROGRESS -> PASS|BLOCKED`; transitions
+  are locked and failed evidence validation restores the prior state.
+- PASS requires repeatable compatibility/smoke evidence, partial-migration and
+  restore drills, architecture reconciliation, and no open P0/P1 finding.
+- A code rollback is not evidence of data recovery. Never perform destructive
+  recovery automatically or reuse pre-refactor Gate evidence.
+
+### Knowledge Mirror
+
+- The project repository is the authority. A bound Vault directory is only a
+  one-way, allowlisted Markdown mirror and is never an implicit source of edits.
+- Preview and approval must occur before the first project directory or local
+  binding is created. A new computer must repeat that local path confirmation.
+- Run the sync audit after meaningful documentation, verification, decision,
+  blocker, and tool-switch events. `UNBOUND` is informational; `PENDING` may be
+  synchronized; `CONFLICT` or `INVALID` must be reported without overwriting.
+- Do not copy source code, logs, credentials, customer data, or paths outside
+  `.ai/KNOWLEDGE_SYNC.yml`. Partial failure remains pending and retries must be
+  idempotent. Never delete a user's mirror file automatically.
+
+Every project requires an Archify top-level architecture as Stage 1 design
+evidence. Author JSON under docs/architecture, build HTML and a bound receipt
+with `node scripts/architecture.mjs build`, then run `check`. Technical PRD
+owns component responsibilities; the diagram owns their visual relationships.
+Record independent visual review in DESIGN_CHALLENGE.md and code/architecture
+reconciliation in ADVERSARIAL_REVIEW.md. Architecture or tool-lock changes
+invalidate design and all dependent gates. Missing Archify blocks design.
 
 ### First-Principles Reasoning
 

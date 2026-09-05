@@ -4,26 +4,45 @@ This file defines how AI agents execute tasks and produce lifecycle evidence.
 
 ## Standard Task Flow
 
-1. Read `.ai/PROJECT_CONTEXT.md`.
-2. Read `.ai/PROJECT_RULES.md`.
-3. Read `.ai/LIFECYCLE_STATE` as data; never source or execute it.
-4. Read `.ai/LIFECYCLE_BASELINE` as data; never source, execute, or edit it.
-5. Read recent `.ai/PROJECT_HISTORY.md` entries.
-6. Read `.ai/WORKFLOW.md`.
-7. Read relevant files under `docs/`, including current lifecycle evidence.
-8. Identify the task goal, root need, risk level, affected modules, current
+1. Run `node scripts/project-continuity.mjs audit`; reconcile non-consistent
+   results before trusting recorded progress. `UNINITIALIZED` is only a new
+   project state and audit never repairs or approves work.
+2. Read `.ai/PROJECT_CONTEXT.md`.
+3. Read `.ai/PROJECT_RULES.md`.
+4. Read `.ai/LIFECYCLE_STATE` as data; never source or execute it.
+5. Read `.ai/LIFECYCLE_BASELINE` as data; never source, execute, or edit it.
+6. Read recent `.ai/PROJECT_HISTORY.md` entries.
+7. Read `.ai/WORKFLOW.md`.
+8. Read relevant files under `docs/`, including current lifecycle evidence.
+9. Identify the task goal, root need, risk level, affected modules, current
    stage, applicable gate, and required verification.
-9. If goal, scope, assumptions, architecture, risk, critical behavior, or
+10. If goal, scope, assumptions, architecture, risk, critical behavior, or
    release candidate changes materially, return to the earliest affected gate;
    re-recording it will invalidate downstream statuses and approvals.
-10. Make the smallest confirmed change.
-11. Run a negative control or failing test, targeted verification, smoke tests,
+11. Make the smallest confirmed change.
+12. Run a negative control or failing test, targeted verification, smoke tests,
     and adversarial checks appropriate to the stage.
-12. Update evidence, context, history, and technical/product/design/data docs.
-13. Run `scripts/record-lifecycle-gate.sh <gate>` and then
+13. Update evidence, context, history, and technical/product/design/data docs.
+14. If a local knowledge base is bound, run `node scripts/knowledge-sync.mjs
+    audit`; run `node scripts/knowledge-sync.mjs sync` only for `PENDING`.
+    Stop mirror writes on `CONFLICT` or `INVALID`, report the unsynced state,
+    and never roll back completed project work because the mirror is unavailable.
+15. Run `scripts/record-lifecycle-gate.sh <gate>` and then
     `scripts/check-lifecycle-gate.sh <gate>` before advancing.
-14. Report changed scope, evidence, command results, residual risks, blocked
+16. Record a checkpoint with `node scripts/project-continuity.mjs snapshot`
+    before a planned tool switch or after a verified work unit.
+17. Report changed scope, evidence, command results, residual risks, blocked
     checks, and required human decisions.
+
+## Knowledge Mirror Events
+
+The project repository is the authority; a bound Vault directory is a one-way,
+allowlisted Markdown mirror. Synchronize after a verified work unit, material
+decision, blocker, documentation update, or before a planned tool switch. The
+binding is machine-local and ignored by Git, so a new computer requires a new
+preview and explicit path confirmation. Never copy source code, logs, secrets,
+customer data, or files absent from `.ai/KNOWLEDGE_SYNC.yml`. Never interpret a
+mirror edit as a repository update or overwrite it automatically.
 
 ## Stage 0 Plan — First Principles and U-Shaped Thinking
 
@@ -44,7 +63,30 @@ scripts/check-lifecycle-gate.sh plan
 Stop on failure. Do not write PRDs until the plan gate passes and the user
 accepts the plan.
 
+## Refactor Interruption and Recovery
+
+When work changes existing structure rather than adding an isolated behavior:
+
+1. Audit/snapshot the actual repository and confirm the plan gate is current.
+2. Run `scripts/start-refactor.sh <stable-id>`; this invalidates design onward.
+3. Complete `REFACTOR_PLAN.md`, update Archify/technical contracts, then record
+   the design gate before entering `IN_PROGRESS`.
+4. Implement reversible stages and snapshot at verified boundaries.
+5. Record compatibility, migration interruption, rollback/restore, smoke and
+   adversarial evidence in `REFACTOR_RECOVERY.md`.
+6. Run `scripts/transition-refactor.sh PASS`; failures restore the previous
+   state. Re-record implementation and downstream Gates afterward.
+
+Do not use Git reset, data deletion, unreviewed migration rollback or a new
+branch/commit as an automatic recovery shortcut.
+
 ## Stage 1 PRD and Solution — Rebuild and Attack the Design
+
+Generate the Archify architecture under `docs/architecture/` alongside the
+technical PRD. Map every node to an `ARCH:<id>` responsibility in the technical
+PRD. Run `node scripts/architecture.mjs build` then `check`. Review the rendered
+diagram and its request/data paths with the design challenge before passing
+design. Follow docs/architecture/README.md for separate browser evidence.
 
 1. Update `docs/product/PRD.md` and `docs/technical/TECHNICAL_PRD.md` from the
    passed problem framing.

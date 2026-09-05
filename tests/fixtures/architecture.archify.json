@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {"title": "Harness 架构交付验证夹具", "locale": "zh-CN", "quality_profile": "showcase"},
+  "components": [
+    {"id": "author", "type": "external", "label": "方案作者", "sublabel": "提交已确认的组件关系", "pos": [80, 170], "size": [220, 90]},
+    {"id": "renderer", "type": "backend", "label": "Archify", "sublabel": "校验并生成独立 HTML", "pos": [440, 170], "size": [220, 90]},
+    {"id": "reviewer", "type": "external", "label": "设计评审", "sublabel": "检查事实和权限边界", "pos": [800, 170], "size": [220, 90]}
+  ],
+  "connections": [
+    {"from": "author", "to": "renderer", "label": "JSON 规格"},
+    {"from": "renderer", "to": "reviewer", "label": "HTML 与回执"}
+  ]
+}

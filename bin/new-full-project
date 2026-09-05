@@ -8,7 +8,7 @@ HARNESS_VERSION="$(tr -d '[:space:]' < "$TEMPLATE_DIR/.ai/HARNESS_VERSION")"
 usage() {
   cat <<'USAGE'
 Usage:
-  new-full-project [--stack STACK] [--description TEXT] [--no-git] <project-name> [target-parent]
+  new-full-project [--stack STACK] [--description TEXT] [--autopilot disabled|enabled] [--autopilot-controller-ref SHA] [--no-git] <project-name> [target-parent]
 
 Environment:
   AI_PROJECT_STACK          Optional stack label.
@@ -17,11 +17,15 @@ Environment:
 Examples:
   new-full-project analytics-workspace ~/Projects
   AI_PROJECT_STACK="React + Node.js" new-full-project analytics-workspace ~/Projects
+  new-full-project --autopilot enabled --autopilot-controller-ref 0123456789abcdef0123456789abcdef01234567 analytics-workspace ~/Projects
 USAGE
 }
 
 PROJECT_STACK="${AI_PROJECT_STACK:-Not provided during initialization; resolve in Stage 0.}"
 PROJECT_DESCRIPTION="${AI_PROJECT_DESCRIPTION:-Not provided during initialization; resolve in Stage 0.}"
+AUTOPILOT_MODE=disabled
+AUTOPILOT_CONTROLLER_REF=UNCONFIGURED
+AUTOPILOT_CONTROLLER_REF_PROVIDED=0
 NO_GIT=0
 POSITIONAL=()
 
@@ -35,6 +39,20 @@ while [[ $# -gt 0 ]]; do
     --description)
       [[ $# -ge 2 ]] || { echo "--description requires a value" >&2; exit 2; }
       PROJECT_DESCRIPTION="$2"
+      shift 2
+      ;;
+    --autopilot)
+      [[ $# -ge 2 ]] || { echo "--autopilot requires disabled or enabled" >&2; exit 2; }
+      case "$2" in
+        disabled|enabled) AUTOPILOT_MODE="$2" ;;
+        *) echo "--autopilot must be disabled or enabled" >&2; exit 2 ;;
+      esac
+      shift 2
+      ;;
+    --autopilot-controller-ref)
+      [[ $# -ge 2 ]] || { echo "--autopilot-controller-ref requires a value" >&2; exit 2; }
+      AUTOPILOT_CONTROLLER_REF="$2"
+      AUTOPILOT_CONTROLLER_REF_PROVIDED=1
       shift 2
       ;;
     --no-git)
@@ -92,6 +110,32 @@ if [[ "$PROJECT_DESCRIPTION" == *$'\n'* || "$PROJECT_DESCRIPTION" == *$'\r'* ]];
   exit 2
 fi
 
+if [[ "$AUTOPILOT_CONTROLLER_REF" == *$'\n'* || "$AUTOPILOT_CONTROLLER_REF" == *$'\r'* ]]; then
+  echo "--autopilot-controller-ref must be a single line." >&2
+  exit 2
+fi
+
+if [[ "$AUTOPILOT_MODE" == enabled ]]; then
+  if [[ "$AUTOPILOT_CONTROLLER_REF_PROVIDED" -ne 1 ]]; then
+    echo "--autopilot enabled requires --autopilot-controller-ref." >&2
+    exit 2
+  fi
+  if [[ ! "$AUTOPILOT_CONTROLLER_REF" =~ ^[0-9a-fA-F]{40}$ ]]; then
+    echo "--autopilot-controller-ref must be a full 40-character hexadecimal SHA." >&2
+    exit 2
+  fi
+  AUTOPILOT_ENABLED_VALUE=true
+  AUTOPILOT_AUTO_ACTIVATE_VALUE=true
+else
+  if [[ "$AUTOPILOT_CONTROLLER_REF_PROVIDED" -ne 0 ]]; then
+    echo "--autopilot-controller-ref is only valid with --autopilot enabled." >&2
+    exit 2
+  fi
+  AUTOPILOT_CONTROLLER_REF=UNCONFIGURED
+  AUTOPILOT_ENABLED_VALUE=false
+  AUTOPILOT_AUTO_ACTIVATE_VALUE=false
+fi
+
 if [[ ! -d "$TEMPLATE_DIR" ]]; then
   echo "Template directory not found: $TEMPLATE_DIR" >&2
   exit 1
@@ -118,7 +162,12 @@ PROJECT_NAME_ESCAPED="$(escape_sed "$PROJECT_NAME")"
 PROJECT_STACK_ESCAPED="$(escape_sed "$PROJECT_STACK")"
 PROJECT_DESCRIPTION_ESCAPED="$(escape_sed "$PROJECT_DESCRIPTION")"
 HARNESS_VERSION_ESCAPED="$(escape_sed "$HARNESS_VERSION")"
+AUTOPILOT_ENABLED_ESCAPED="$(escape_sed "$AUTOPILOT_ENABLED_VALUE")"
+AUTOPILOT_CONTROLLER_REF_ESCAPED="$(escape_sed "$AUTOPILOT_CONTROLLER_REF")"
+AUTOPILOT_AUTO_ACTIVATE_ESCAPED="$(escape_sed "$AUTOPILOT_AUTO_ACTIVATE_VALUE")"
 TODAY_ESCAPED="$(date +%F)"
+PROJECT_ID="$(node -e "process.stdout.write(require('node:crypto').randomUUID())")"
+PROJECT_ID_ESCAPED="$(escape_sed "$PROJECT_ID")"
 
 while IFS= read -r file; do
   if ! LC_ALL=C grep -Iq . "$file"; then
@@ -130,7 +179,11 @@ while IFS= read -r file; do
     -e "s/{{PROJECT_STACK}}/${PROJECT_STACK_ESCAPED}/g" \
     -e "s/{{PROJECT_DESCRIPTION}}/${PROJECT_DESCRIPTION_ESCAPED}/g" \
     -e "s/{{HARNESS_VERSION}}/${HARNESS_VERSION_ESCAPED}/g" \
+    -e "s/{{AUTOPILOT_ENABLED}}/${AUTOPILOT_ENABLED_ESCAPED}/g" \
+    -e "s/{{AUTOPILOT_CONTROLLER_REF}}/${AUTOPILOT_CONTROLLER_REF_ESCAPED}/g" \
+    -e "s/{{AUTOPILOT_AUTO_ACTIVATE}}/${AUTOPILOT_AUTO_ACTIVATE_ESCAPED}/g" \
     -e "s/{{TODAY}}/${TODAY_ESCAPED}/g" \
+    -e "s/{{PROJECT_ID}}/${PROJECT_ID_ESCAPED}/g" \
     "$file" > "$tmp_file"
   mv "$tmp_file" "$file"
 done < <(find "$PROJECT_DIR" -type f -print)
@@ -147,9 +200,33 @@ if [[ -f "$PROJECT_DIR/scripts/lifecycle-fingerprint.sh" ]]; then
   chmod +x "$PROJECT_DIR/scripts/lifecycle-fingerprint.sh"
 fi
 
+if [[ -f "$PROJECT_DIR/scripts/autopilot-fingerprint.sh" ]]; then
+  chmod +x "$PROJECT_DIR/scripts/autopilot-fingerprint.sh"
+fi
+
+if [[ -f "$PROJECT_DIR/scripts/check-autopilot-contract.sh" ]]; then
+  chmod +x "$PROJECT_DIR/scripts/check-autopilot-contract.sh"
+fi
+
 if [[ -f "$PROJECT_DIR/scripts/record-lifecycle-gate.sh" ]]; then
   chmod +x "$PROJECT_DIR/scripts/record-lifecycle-gate.sh"
 fi
+
+if [[ -f "$PROJECT_DIR/scripts/transition-autopilot.sh" ]]; then
+  chmod +x "$PROJECT_DIR/scripts/transition-autopilot.sh"
+fi
+
+if [[ -f "$PROJECT_DIR/scripts/project-continuity.mjs" ]]; then
+  chmod +x "$PROJECT_DIR/scripts/project-continuity.mjs"
+fi
+
+if [[ -f "$PROJECT_DIR/scripts/knowledge-sync.mjs" ]]; then
+  chmod +x "$PROJECT_DIR/scripts/knowledge-sync.mjs"
+fi
+
+for refactor_script in check-refactor.sh start-refactor.sh transition-refactor.sh; do
+  [[ ! -f "$PROJECT_DIR/scripts/$refactor_script" ]] || chmod +x "$PROJECT_DIR/scripts/$refactor_script"
+done
 
 if [[ "$NO_GIT" -eq 0 ]] && command -v git >/dev/null 2>&1; then
   git -C "$PROJECT_DIR" init -q

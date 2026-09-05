@@ -1,5 +1,10 @@
 # Adversarial Review
 
+Before release, reconcile the Archify graph with implemented components and
+call/data paths. Record any architecture drift, missing permission boundary or
+recovery route as a finding. Update the source and repeat the design gate when
+the confirmed architecture changes.
+
 ## Review Scope and Independent Perspective
 
 <!-- REQUIRED: identify the reviewed candidate, reviewer perspective, and independence limits -->

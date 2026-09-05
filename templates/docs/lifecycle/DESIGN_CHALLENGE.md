@@ -26,6 +26,12 @@
 
 ## Adversarial Design Attacks
 
+Use the delivered Archify graph to trace the main request/data path. Challenge
+node responsibilities, missing dependencies, trust crossings and recovery.
+Record the HTML SHA-256, browser-check outcome and independent visual-review
+outcome below; explain any non-applicable boundary. A successful Archify receipt
+alone does not prove these semantic or visual judgments.
+
 | Attack | Assumption challenged | Impact | Mitigation or acceptance | Evidence |
 |---|---|---|---|---|
 | <!-- REQUIRED: boundary, abnormal, malicious, biased, or business-backfire scenario --> | <!-- REQUIRED: assumption --> | <!-- REQUIRED: impact --> | <!-- REQUIRED: disposition --> | <!-- REQUIRED: evidence --> |

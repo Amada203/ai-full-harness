@@ -6,6 +6,12 @@
 
 ## Architecture and Trust Boundaries
 
+[Interactive architecture](../architecture/ARCHITECTURE.html)
+
+For each diagram component, include `ARCH:<component-id>` followed by its
+responsibility, source requirement and trust boundary. Follow
+`../architecture/README.md` for source, delivery and review commands.
+
 <!-- REQUIRED: describe components, responsibilities, dependencies, and trust boundaries -->
 
 ## Assumptions and Falsification Plan

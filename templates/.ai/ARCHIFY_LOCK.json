@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "repository": "https://github.com/tt-a1i/archify",
+  "version": "2.17.0-dev.1",
+  "treeSha256": "b5bf7ed7274f45e10b53b76681b00386cde1491f2dbd091ccc7e5dd52d42d252",
+  "provenance": "Installed local skill snapshot; upstream commit not attested. Review before remote rollout."
+}

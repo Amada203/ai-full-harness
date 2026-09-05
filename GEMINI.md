@@ -1,0 +1,11 @@
+# Full Harness source tool entry
+
+Before working, read in order:
+
+1. `.ai/PROJECT_CONTEXT.md`
+2. `.ai/PROJECT_RULES.md`
+3. Recent `.ai/PROJECT_HISTORY.md`
+
+Follow the shared startup and verification protocol. If required files cannot
+be read, report the problem before proceeding.
+Do not treat this entry as an independent rule source.

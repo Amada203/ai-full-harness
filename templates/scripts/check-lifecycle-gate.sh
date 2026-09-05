@@ -239,6 +239,8 @@ required_keys=(
   RETROSPECTIVE_STATUS
   HUMAN_APPROVAL_REF
   GITHUB_APPROVAL_REF
+  REFACTOR_ID
+  REFACTOR_STATUS
 )
 
 line_number=0
@@ -250,7 +252,7 @@ while IFS= read -r state_line || [[ -n "$state_line" ]]; do
 
   state_key="${state_line%%=*}"
   case "$state_key" in
-    SCHEMA_VERSION|RISK_LEVEL|CURRENT_GATE|PLAN_STATUS|DESIGN_STATUS|PROTOTYPE_STATUS|IMPLEMENTATION_STATUS|RELEASE_STATUS|GITHUB_STATUS|RETROSPECTIVE_STATUS|HUMAN_APPROVAL_REF|GITHUB_APPROVAL_REF) ;;
+    SCHEMA_VERSION|RISK_LEVEL|CURRENT_GATE|PLAN_STATUS|DESIGN_STATUS|PROTOTYPE_STATUS|IMPLEMENTATION_STATUS|RELEASE_STATUS|GITHUB_STATUS|RETROSPECTIVE_STATUS|HUMAN_APPROVAL_REF|GITHUB_APPROVAL_REF|REFACTOR_ID|REFACTOR_STATUS) ;;
     *) fail "Unknown lifecycle state key: $state_key" ;;
   esac
 done < "$STATE_FILE"
@@ -323,6 +325,15 @@ case "$GITHUB_STATUS" in
   *) fail "GITHUB_STATUS must be BLOCKED or APPROVED; found $GITHUB_STATUS" ;;
 esac
 
+REFACTOR_ID="$(state_value REFACTOR_ID)"
+REFACTOR_STATUS="$(state_value REFACTOR_STATUS)"
+if [[ "$REFACTOR_ID" == NONE ]]; then
+  [[ "$REFACTOR_STATUS" == NONE ]] || fail "REFACTOR_STATUS must be NONE when no refactor is active"
+else
+  [[ "$REFACTOR_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$ ]] || fail "REFACTOR_ID is invalid"
+  case "$REFACTOR_STATUS" in PLANNED|IN_PROGRESS|PASS|BLOCKED) ;; *) fail "REFACTOR_STATUS is invalid" ;; esac
+fi
+
 check_plan() {
   require_state_value PLAN_STATUS PASS
   require_complete_file "docs/lifecycle/PROBLEM_FRAMING.md"
@@ -350,6 +361,9 @@ check_design() {
   require_complete_file "docs/product/PRD.md"
   require_complete_file "docs/technical/TECHNICAL_PRD.md"
   require_complete_file "docs/lifecycle/DESIGN_CHALLENGE.md"
+  command -v node >/dev/null 2>&1 || fail "Node.js is required for architecture verification"
+  node "$ROOT_DIR/scripts/architecture.mjs" check || fail "Architecture evidence is incomplete or stale"
+  "$ROOT_DIR/scripts/check-refactor.sh" design || fail "Active refactor design is incomplete"
   require_sections "docs/product/PRD.md" \
     "# Product Requirements Document" \
     "## Problem and Evidence Reference" \
@@ -427,6 +441,7 @@ check_prototype() {
 check_implementation() {
   check_prototype
   require_state_value IMPLEMENTATION_STATUS PASS
+  "$ROOT_DIR/scripts/check-refactor.sh" implementation || fail "Active refactor recovery is incomplete"
   require_complete_file "docs/lifecycle/SMOKE_TEST_REPORT.md"
   require_sections "docs/lifecycle/SMOKE_TEST_REPORT.md" \
     "# Pre-Release Smoke Test Report" \

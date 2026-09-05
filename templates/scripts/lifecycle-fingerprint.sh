@@ -161,6 +161,10 @@ emit_scope() {
       emit_file "docs/lifecycle/PROBLEM_FRAMING.md"
       ;;
     design)
+      printf 'REFACTOR_ID=%s\n' "$(state_value REFACTOR_ID)"
+      if [[ "$(state_value REFACTOR_ID)" != NONE ]]; then emit_file "docs/lifecycle/REFACTOR_PLAN.md"; fi
+      emit_tree "docs/architecture"
+      emit_file ".ai/ARCHIFY_LOCK.json"
       emit_tree "docs/product"
       emit_tree "docs/technical"
       emit_tree "docs/data"
@@ -172,6 +176,7 @@ emit_scope() {
       emit_file "docs/lifecycle/PROTOTYPE_SMOKE_TEST.md"
       ;;
     implementation)
+      printf 'REFACTOR_ID=%s\nREFACTOR_STATUS=%s\n' "$(state_value REFACTOR_ID)" "$(state_value REFACTOR_STATUS)"
       emit_implementation_tree
       ;;
     release)

@@ -1,0 +1,47 @@
+name: Autopilot Enrollment
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  checks: read
+  pull-requests: read
+
+jobs:
+  validate-enrollment:
+    name: Validate Autopilot enrollment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Reject protected control changes
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          git worktree add --detach "$RUNNER_TEMP/trusted-harness-base" "$BASE_SHA"
+          "$RUNNER_TEMP/trusted-harness-base/scripts/check-autopilot-contract.sh" \
+            protected-diff "$BASE_SHA" "$HEAD_SHA"
+
+      - name: Check Harness structure
+        shell: bash
+        run: scripts/check-harness.sh
+
+      - name: Check Stage 0 lifecycle gate
+        shell: bash
+        run: scripts/check-lifecycle-gate.sh plan
+
+      - name: Check Autopilot enrollment contract
+        shell: bash
+        run: scripts/check-autopilot-contract.sh enrollment
