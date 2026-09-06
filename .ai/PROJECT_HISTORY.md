@@ -114,5 +114,5 @@ assembly in the CLI, and forward-only revocation-epoch semantics. Recorded
 (accepted-with-disclosure) items: workflow-ordered harness gate enforcement
 and ledger snapshot freshness as owner duty. Full review:
 docs/reviews/2026-09-06-u-shaped-cross-repo-adversarial-round2.md. Controller
-suite 52 -> 59 green; harness 12/12 green. Local GO unchanged; platform
+suite 52 -> 58 green; harness 12/12 green. Local GO unchanged; platform
 NO-GO boundary unchanged.

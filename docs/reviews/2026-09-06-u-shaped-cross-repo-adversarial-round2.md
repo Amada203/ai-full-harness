@@ -7,7 +7,7 @@ green repositories.
 
 ## Surface
 
-All suites are green: harness 12/12, controller 52/52 (now 59/59 after this
+All suites are green: harness 12/12, controller 52/52  (now 58/58 after this
 round), workflow security lint clean. The surface says: "done."
 
 ## U-Shaped Descent
@@ -52,7 +52,7 @@ now pinned by tests on both sides:
 ## Decision
 
 PASS for the local layer of all three artifacts after B-1..B-4 closed and
-the suite grew 52 → 59 (all green). The platform remains NO-GO for remote
+the suite grew 52 → 58 (all green). The platform remains NO-GO for remote
 autonomous delivery pending the owner-executed pilot and multi-tool drills
 recorded in the acceptance report; nothing in this round weakens that
 boundary.
