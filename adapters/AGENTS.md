@@ -14,5 +14,9 @@ When the user asks to create a project with the full harness, including
    `.ai/PROJECT_HISTORY.md`, and `.ai/WORKFLOW.md`.
 7. Start at Stage 0 Plan.
 
+Autopilot is disabled by default. Only when the user explicitly asks for it, pass
+`--autopilot enabled --autopilot-controller-ref <full-40-char-SHA>`; enabling
+requires a passed Stage 0 gate and never changes protected paths.
+
 For generated projects, `.ai/PROJECT_RULES.md` is the single source of truth.
 Project entry files are startup pointers only.

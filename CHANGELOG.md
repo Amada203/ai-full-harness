@@ -1,24 +1,21 @@
 # Changelog
 
-## Unreleased — Cross-repo adversarial round 2
+## 2.4.0 — 2026-09-06
 
-- Closed a P1 cross-repository defect: the controller evaluator now refuses
-  nested protected directories (src/config/, app/deploy/, ...) exactly like
-  the generated project's verifier; a parity fixture pins both sides.
-- Grant numerics normalized across the YAML/JSON boundary; revocation
-  epochs are forward-only from issuance. Review:
-  docs/reviews/2026-09-06-u-shaped-cross-repo-adversarial-round2.md.
+Ships the complete local Autopilot platform layer: contract, grant,
+ledger design, and the separately versioned controller repository.
 
-## Unreleased — Central control ledger design
+### Architecture design evidence
 
-- Recorded the owner-confirmed authority split: an append-only,
-  digest-chained control ledger held outside project and controller owns
-  issuance, revocation epochs, global run budget, and issuer identity.
-- Defined the issue/revoke/consume entry contract, chain-verification rules,
-  and fail-closed invariants in
-  docs/superpowers/specs/2026-09-06-control-ledger-design.md.
+- Add Archify source/HTML/delivery receipt workflow under docs/architecture.
+- Require pinned tool contents, showcase validation, technical node references,
+  and artifact/source digests in the existing design gate.
+- Include architecture and tool lock in design fingerprints. Keep original PRD
+  paths and require reviewed adoption for existing projects.
+- Local tool snapshot is 2.17.0-dev.1; an upstream release/distribution is not
+  attested. Browser measurements and visual judgment are separate evidence.
 
-## Unreleased — Narrow GitHub candidate grant contract
+### Narrow GitHub candidate grant contract
 
 - Added a disabled-by-default `.autopilot/GITHUB_GRANT.yml` reference and a
   fail-closed `scripts/check-autopilot-grant.sh` verifier for externally
@@ -32,15 +29,28 @@
 - Registration default-route migration (preview/apply/restore) and central
   control-ledger wiring remain explicitly authorized future work.
 
-## Unreleased — Architecture design evidence
+### Central control ledger design
 
-- Add Archify source/HTML/delivery receipt workflow under docs/architecture.
-- Require pinned tool contents, showcase validation, technical node references,
-  and artifact/source digests in the existing design gate.
-- Include architecture and tool lock in design fingerprints. Keep original PRD
-  paths and require reviewed adoption for existing projects.
-- Local tool snapshot is 2.17.0-dev.1; an upstream release/distribution is not
-  attested. Browser measurements and visual judgment are separate evidence.
+- Recorded the owner-confirmed authority split: an append-only,
+  digest-chained control ledger held outside project and controller owns
+  issuance, revocation epochs, global run budget, and issuer identity.
+- Defined the issue/revoke/consume entry contract, chain-verification rules,
+  and fail-closed invariants in
+  docs/superpowers/specs/2026-09-06-control-ledger-design.md.
+
+### Cross-repo adversarial round 2
+
+- Closed a P1 cross-repository defect: the controller evaluator now refuses
+  nested protected directories (src/config/, app/deploy/, ...) exactly like
+  the generated project's verifier; a parity fixture pins both sides.
+- Grant numerics normalized across the YAML/JSON boundary; revocation
+  epochs are forward-only from issuance. Review:
+  docs/reviews/2026-09-06-u-shaped-cross-repo-adversarial-round2.md.
+
+Existing projects remain unchanged; adoption requires an explicit,
+version-aware, reviewed migration. Remote pilot, pinned release, and
+multi-tool drills remain owner-authorized external steps (see
+docs/autopilot-central-deployment-checklist.md).
 
 ## 2.3.0 — 2026-09-04
 

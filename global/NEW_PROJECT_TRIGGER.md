@@ -32,3 +32,7 @@ AI_PROJECT_STACK="..." AI_PROJECT_DESCRIPTION="..." \
 
 Do not use this trigger for ordinary "新建项目" requests unless the user says
 "完整 Harness" or explicitly asks to use this full harness.
+
+Autopilot is disabled by default. Only when the user explicitly asks for it,
+pass `--autopilot enabled --autopilot-controller-ref <full-40-char-SHA>`;
+enabling requires a passed Stage 0 gate.

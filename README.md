@@ -71,9 +71,11 @@ existing lightweight harness unchanged while providing a fuller structure for
 projects that need durable context, rules, history, workflow, and documentation
 layers.
 
-Version 2.3 adds a disabled-by-default, owner-controlled Project Autopilot
-enrollment contract on top of the freshness-aware enforcement introduced in
-2.2. First-principles reasoning,
+Version 2.4 completes the local Autopilot platform layer: the 2.3
+disabled-by-default enrollment contract plus a fail-closed narrow GitHub
+candidate grant, the owner-confirmed central control ledger authority
+split, and a separately versioned controller repository (`~/project-autopilot`,
+not consumed at generation time). First-principles reasoning,
 U-shaped thinking, smoke testing, and adversarial review produce mandatory
 evidence; recorded fingerprints detect later changes, upstream re-recording
 invalidates downstream approvals, and CI checks the fixed final gate.
@@ -102,6 +104,7 @@ project/
 │   ├── POLICY.yml
 │   ├── OBJECTIVES.md
 │   ├── PROTECTED_PATHS.yml
+│   ├── GITHUB_GRANT.yml
 │   └── AUTOPILOT_STATE
 ├── docs/
 │   ├── product/PRD.md
@@ -112,13 +115,20 @@ project/
 │   ├── lifecycle/
 │   └── autopilot/
 ├── scripts/
+│   ├── architecture.mjs
 │   ├── autopilot-fingerprint.sh
 │   ├── check-autopilot-contract.sh
+│   ├── check-autopilot-grant.sh
 │   ├── check-harness.sh
 │   ├── check-lifecycle-gate.sh
+│   ├── check-refactor.sh
+│   ├── knowledge-sync.mjs
 │   ├── lifecycle-fingerprint.sh
+│   ├── project-continuity.mjs
 │   ├── record-lifecycle-gate.sh
-│   └── transition-autopilot.sh
+│   ├── start-refactor.sh
+│   ├── transition-autopilot.sh
+│   └── transition-refactor.sh
 ├── .github/workflows/
 │   ├── harness-gates.yml
 │   ├── autopilot-enrollment.yml
@@ -221,6 +231,26 @@ deployment configuration, and owner-added protected paths. Because a repository
 administrator can still replace project-local workflow definitions, production
 enrollment also requires an organization or repository ruleset/required workflow
 that the candidate branch cannot redefine.
+
+## Autopilot Platform Boundary
+
+The platform is two repositories plus an owner-held ledger:
+
+- **This repository** generates the consumer-side contract: `.autopilot/`
+  data files, fingerprints, validators, the state machine, and the
+  disabled-by-default `GITHUB_GRANT.yml` reference.
+- **`~/project-autopilot`** (separate repository, independently versioned)
+  is the fail-closed controller; it may only open candidate branches and
+  draft PRs after grant AND ledger-chain verification, and never merges,
+  releases, or deploys.
+- **Central control ledger** (owner-held, outside both repositories) owns
+  issuance, revocation epochs, and global budgets. Authority split:
+  `docs/superpowers/specs/2026-09-06-control-ledger-design.md`.
+
+Remote GitHub configuration, the pinned controller release, and the pilot
+are owner-executed steps listed in
+`docs/autopilot-central-deployment-checklist.md`. Nothing here publishes or
+grants remote authority by itself.
 
 ## Controlled Self-Evolution
 

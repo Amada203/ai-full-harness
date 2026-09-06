@@ -9,10 +9,12 @@ review-only feedback from an independently versioned Project Autopilot.
 
 ## Current state
 
-Overall system readiness: NO-GO. This worktree contains unmerged and unpublished
-Harness 2.3 contract changes and Unreleased architecture integration. Inspect
-Git branch/status and the template version before relying on any version claim.
-Do not assume the user's main checkout or global tool registration uses it.
+Overall system readiness: NO-GO for remote autonomous delivery; the local
+layer is complete. Local main carries the merged Harness 2.4.0 contract,
+grant, architecture, continuity, refactor, and knowledge-base streams
+(ahead of origin; not pushed). The separate controller repository exists at
+~/project-autopilot (local commits only). Global tool registration and any
+remote GitHub configuration have not been performed.
 
 The generated project retains existing PRD paths. Archify diagram source, HTML
 and receipt live under docs/architecture; design gates bind their fingerprints.
@@ -25,10 +27,12 @@ The independent controller lives in its own repository, not this template tree.
 
 ## Open requirements and blockers
 
-- Merge/publication/global registration require their own explicit approvals.
-- Controller cross-run control ledger authority awaits owner confirmation.
-- Complete candidate validation, autonomous promotion/recovery and central
-  upgrade/feedback delivery are not deployed and verified end to end.
+- Push/publication/global registration require their own explicit approvals
+  (see docs/autopilot-central-deployment-checklist.md).
+- The control-ledger authority split was owner-confirmed 2026-09-06; the
+  ledger itself is designed but not deployed, and no external issuer exists.
+- The controller is implemented and tested locally only: no pinned release,
+  no GitHub App, no remote pilot, no real promotion/recovery evidence.
 - Generated projects have local checkpoint snapshot/audit, four shared startup
   integrations, generic refactor gates, and the externally issued narrow GitHub
   candidate grant contract with adversarial fixtures. Real tool-switch
