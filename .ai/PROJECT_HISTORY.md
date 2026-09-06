@@ -125,3 +125,14 @@ restored README/adapter/global doc parity, refreshed the stale project
 context to the merged reality, and verified controller npm scripts plus the
 documented pinned-release workflow path. Harness 12/12 and controller 58/58
 green. Local GO / remote NO-GO is now stated identically everywhere.
+
+## 2026-09-06 — publication (owner-approved)
+
+With explicit owner approval, harness main (9676ed3..134512c, Harness
+2.4.0) was pushed to github.com/Amada203/ai-full-harness and verified
+byte-identical. The gh CLI was authorized (SSH protocol), the private
+github.com/Amada203/project-autopilot repository was created on the
+owner's behalf, and the controller's four local commits were pushed and
+verified (origin/main = cfe4f13). No force push, no default-branch rule
+change, no secret, no App, no release. Remaining: branch protection,
+App/ledger setup, and the remote pilot per the deployment checklist.

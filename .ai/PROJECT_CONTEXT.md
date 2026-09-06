@@ -10,11 +10,12 @@ review-only feedback from an independently versioned Project Autopilot.
 ## Current state
 
 Overall system readiness: NO-GO for remote autonomous delivery; the local
-layer is complete. Local main carries the merged Harness 2.4.0 contract,
-grant, architecture, continuity, refactor, and knowledge-base streams
-(ahead of origin; not pushed). The separate controller repository exists at
-~/project-autopilot (local commits only). Global tool registration and any
-remote GitHub configuration have not been performed.
+layer is complete and PUBLISHED. Harness 2.4.0 is pushed to
+github.com/Amada203/ai-full-harness (origin/main = 134512c), and the
+controller is pushed to the private github.com/Amada203/project-autopilot
+(origin/main = cfe4f13, created 2026-09-06). Global tool registration, the
+GitHub App, secrets, branch protection, the ledger, and any remote pilot
+have not been performed.
 
 The generated project retains existing PRD paths. Archify diagram source, HTML
 and receipt live under docs/architecture; design gates bind their fingerprints.

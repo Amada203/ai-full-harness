@@ -2,6 +2,10 @@
 
 ## 2.4.0 — 2026-09-06
 
+> Published 2026-09-06: origin/main `134512c` on
+> github.com/Amada203/ai-full-harness. Controller repository published
+> separately as private github.com/Amada203/project-autopilot (`cfe4f13`).
+
 Ships the complete local Autopilot platform layer: contract, grant,
 ledger design, and the separately versioned controller repository.
 
