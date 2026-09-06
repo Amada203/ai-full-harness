@@ -1,0 +1,37 @@
+name: Harness CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  harness-suites:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Use Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Shell suites
+        run: |
+          for t in test-autopilot-contract test-autopilot-grant test-autopilot-workflow-static \
+                   test-new-full-project test-lifecycle-gates test-refactor-recovery \
+                   test-global-registration; do
+            bash "tests/$t.sh"
+          done
+      - name: Node suites
+        run: |
+          # tests/test-architecture.mjs is excluded: it requires the pinned
+          # local Archify installation (ARCHIFY_HOME), which CI does not
+          # attest. Missing tools block design, per the architecture gate.
+          for t in test-continuity test-knowledge-base test-knowledge-sync \
+                   test-source-agent-entries; do
+            node "tests/$t.mjs"
+          done
+      - name: Whitespace
+        run: git diff --check HEAD~
