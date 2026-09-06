@@ -14,7 +14,7 @@ const USAGE = `Usage:
   autopilot-ledger issue  <ledger.jsonl> <GITHUB_GRANT.yml>
   autopilot-ledger revoke <ledger.jsonl> <grant-id> <new-epoch> <reason-ref>
   autopilot-ledger consume <ledger.jsonl> <grant-id> <run-id>
-  autopilot-ledger verify <ledger.jsonl> [GITHUB_GRANT.yml]`;
+  autopilot-ledger verify <ledger.jsonl> [GITHUB_GRANT.yml] [--expect-tip <sha256>]`;
 
 const canonical = (value) => {
   const keys = Object.keys(value).filter((k) => k !== 'entry_hash').sort();
@@ -127,6 +127,14 @@ switch (command) {
     break;
   }
   case 'verify': {
+    const expectTipFlag = rest.indexOf('--expect-tip');
+    let expectTip = null;
+    let verifyRest = rest;
+    if (expectTipFlag !== -1) {
+      expectTip = rest[expectTipFlag + 1];
+      if (!expectTip) fail('--expect-tip requires a sha256 value');
+      verifyRest = rest.filter((_, i) => i !== expectTipFlag && i !== expectTipFlag + 1);
+    }
     let prevHash = 'GENESIS';
     const entries = [];
     for (const [index, line] of lines.entries()) {
@@ -137,11 +145,15 @@ switch (command) {
       entries.push(entry);
     }
     if (entries.length === 0) fail('ledger is empty');
-    if (!rest[0]) {
+    if (expectTip !== null && prevHash !== expectTip) {
+      fail(`ledger tip ${prevHash} does not match the distributed anchor ${expectTip}; snapshot may be truncated`);
+    }
+    const grantFile = verifyRest[0];
+    if (!grantFile) {
       console.log(JSON.stringify({ ok: true, entries: entries.length, tip: prevHash }));
       break;
     }
-    const grant = parseGrantYaml(rest[0]);
+    const grant = parseGrantYaml(grantFile);
     const issue = entries.filter((e) => e.type === 'issue' && e.grant_id === grant.grant_id);
     if (issue.length !== 1) fail(`grant ${grant.grant_id} must have exactly one issue entry`);
     const issued = issue[0];

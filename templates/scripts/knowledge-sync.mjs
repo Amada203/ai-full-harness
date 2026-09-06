@@ -25,6 +25,13 @@ function regularFile(filePath, label) {
   if (!existsSync(filePath)) throw new Error(`${label} is missing`);
   const stat = lstatSync(filePath);
   if (!stat.isFile() || stat.isSymbolicLink()) throw new Error(`${label} must be a regular file`);
+  // F7: lstat only sees the final component. A parent directory may be a
+  // symlink escaping the project, so the whole real path must resolve
+  // inside the project root.
+  const real = realpathSync(filePath);
+  if (real !== root && !real.startsWith(root + sep)) {
+    throw new Error(`${label} resolves outside the project boundary`);
+  }
 }
 function directory(filePath, label) {
   if (!existsSync(filePath)) throw new Error(`${label} is missing`);
