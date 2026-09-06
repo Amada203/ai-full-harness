@@ -116,3 +116,12 @@ and ledger snapshot freshness as owner duty. Full review:
 docs/reviews/2026-09-06-u-shaped-cross-repo-adversarial-round2.md. Controller
 suite 52 -> 58 green; harness 12/12 green. Local GO unchanged; platform
 NO-GO boundary unchanged.
+
+## 2026-09-06 — round 3: consolidation to 2.4.0
+
+Overall review closed the last inconsistencies: released 2.4.0 (changelog
+consolidated), pinned the grant contract in the canonical generator test,
+restored README/adapter/global doc parity, refreshed the stale project
+context to the merged reality, and verified controller npm scripts plus the
+documented pinned-release workflow path. Harness 12/12 and controller 58/58
+green. Local GO / remote NO-GO is now stated identically everywhere.

@@ -111,3 +111,32 @@ delivery; octokit integrates behind the narrow client interface).
 
 Overall decision remains NO-GO for remote autonomous delivery (items 3-4
 are R/H evidence), and GO for the complete local layer of both repositories.
+
+## Round 3 — Overall review to perfect state (2026-09-06)
+
+Consolidation pass over both repositories as one system. Closed:
+
+- Version honesty: template content had materially changed (grant contract
+  is a required generated file) while HARNESS_VERSION stayed 2.3.0 →
+  released 2.4.0 with a consolidated changelog (architecture, grant,
+  ledger, adversarial-round-2 subsections in chronological order).
+- Generator guarantee: `tests/test-new-full-project.sh` now pins
+  `.autopilot/GITHUB_GRANT.yml`, `scripts/check-autopilot-grant.sh`, and
+  the `grant_present: false` default, so the disabled-by-default property
+  is asserted by the canonical generation test, not only the grant suite.
+- Documentation parity: root README gained the platform-boundary section,
+  the actual script tree (continuity/refactor/architecture/knowledge/grant),
+  and the 2.4 version statement; all four generator-referencing entry
+  files (adapters + global trigger) now disclose the autopilot opt-in and
+  its Stage 0 + pinned-SHA requirements.
+- Stale state: `.ai/PROJECT_CONTEXT.md` still described an "unmerged
+  worktree"; it now states the true position — local main carries merged
+  2.4.0, controller exists locally, nothing pushed/registered/deployed.
+- Controller: `npm test`/`npm run lint:workflow` verified; the reusable
+  workflow's pinned-release path is explicitly documented as a
+  deployment-time wiring step, not a mutable checkout.
+
+Both suites green after consolidation: harness 12/12, controller 58/58.
+The decision is unchanged and now fully consistent across every document:
+local layer GO; remote autonomous delivery NO-GO pending owner-executed
+pilot and multi-tool drills.
