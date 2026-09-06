@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — Cross-repo adversarial round 2
+
+- Closed a P1 cross-repository defect: the controller evaluator now refuses
+  nested protected directories (src/config/, app/deploy/, ...) exactly like
+  the generated project's verifier; a parity fixture pins both sides.
+- Grant numerics normalized across the YAML/JSON boundary; revocation
+  epochs are forward-only from issuance. Review:
+  docs/reviews/2026-09-06-u-shaped-cross-repo-adversarial-round2.md.
+
 ## Unreleased — Central control ledger design
 
 - Recorded the owner-confirmed authority split: an append-only,

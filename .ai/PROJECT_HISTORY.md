@@ -103,3 +103,16 @@ deviation: zero-dependency Node ESM + node:test (no npm/network); octokit
 integrates behind the narrow client interface later. Added the owner-facing
 central deployment checklist; remote pilot and pinned release remain
 owner-authorized external steps. Nothing was pushed or released.
+
+## 2026-09-06 — adversarial round 2: cross-repo seams
+
+U-shaped resynthesis shifted review focus from per-repo completeness to the
+three trust-chain seams. Found and closed a P1: nested protected-directory
+drift (controller allowed src/config/, app/deploy/ paths the harness
+verifier refuses); plus YAML/JSON numeric normalization, three-file policy
+assembly in the CLI, and forward-only revocation-epoch semantics. Recorded
+(accepted-with-disclosure) items: workflow-ordered harness gate enforcement
+and ledger snapshot freshness as owner duty. Full review:
+docs/reviews/2026-09-06-u-shaped-cross-repo-adversarial-round2.md. Controller
+suite 52 -> 59 green; harness 12/12 green. Local GO unchanged; platform
+NO-GO boundary unchanged.
