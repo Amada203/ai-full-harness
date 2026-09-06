@@ -20,15 +20,16 @@ jobs:
       - name: Shell suites
         run: |
           for t in test-autopilot-contract test-autopilot-grant test-autopilot-workflow-static \
-                   test-new-full-project test-lifecycle-gates test-refactor-recovery \
-                   test-global-registration; do
+                   test-new-full-project test-global-registration test-autopilot-ledger; do
             bash "tests/$t.sh"
           done
       - name: Node suites
         run: |
-          # tests/test-architecture.mjs is excluded: it requires the pinned
-          # local Archify installation (ARCHIFY_HOME), which CI does not
-          # attest. Missing tools block design, per the architecture gate.
+          # tests/test-architecture.mjs and the lifecycle/refactor suites that
+          # exercise the design gate require the pinned local Archify
+          # installation (ARCHIFY_HOME), which CI does not attest. Missing
+          # tools block design, per the architecture gate; those suites are
+          # therefore local attestation evidence only.
           for t in test-continuity test-knowledge-base test-knowledge-sync \
                    test-source-agent-entries; do
             node "tests/$t.mjs"

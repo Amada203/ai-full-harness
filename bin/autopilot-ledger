@@ -1,0 +1,165 @@
+#!/usr/bin/env node
+// Central control ledger operations — the owner's issuing tool.
+// Append-only JSONL with a SHA-256 entry chain; canonicalization matches
+// project-autopilot/src/ledger.mjs so snapshots cross-verify. This tool
+// never reads project secrets and never performs remote actions.
+
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync, existsSync, renameSync } from 'node:fs';
+
+const sha256 = (s) => createHash('sha256').update(s).digest('hex');
+
+const USAGE = `Usage:
+  autopilot-ledger init <ledger.jsonl>
+  autopilot-ledger issue  <ledger.jsonl> <GITHUB_GRANT.yml>
+  autopilot-ledger revoke <ledger.jsonl> <grant-id> <new-epoch> <reason-ref>
+  autopilot-ledger consume <ledger.jsonl> <grant-id> <run-id>
+  autopilot-ledger verify <ledger.jsonl> [GITHUB_GRANT.yml]`;
+
+const canonical = (value) => {
+  const keys = Object.keys(value).filter((k) => k !== 'entry_hash').sort();
+  return JSON.stringify(Object.fromEntries(keys.map((k) => [k, value[k]])));
+};
+
+const entryHash = (entry) => sha256(entry.prev_hash + canonical(entry));
+
+function load(file) {
+  if (!existsSync(file)) fail(`ledger not found: ${file} (run init first)`);
+  return readFileSync(file, 'utf8').split('\n').filter((l) => l.trim() !== '');
+}
+
+function tip(lines) {
+  if (lines.length === 0) return 'GENESIS';
+  return JSON.parse(lines[lines.length - 1]).entry_hash;
+}
+
+function append(file, lines, entry) {
+  const withPrev = { ...entry, prev_hash: tip(lines) };
+  const record = { ...withPrev, entry_hash: entryHash(withPrev) };
+  const tmp = `${file}.tmp.$$`;
+  writeFileSync(tmp, [...lines, JSON.stringify(record)].join('\n') + '\n');
+  renameSync(tmp, file);
+  console.log(JSON.stringify({ appended: record.type, grant_id: record.grant_id ?? null, entry_hash: record.entry_hash }));
+}
+
+function parseGrantYaml(file) {
+  const allowed = ['schema_version', 'grant_present', 'grant_id', 'issuer', 'external_authority_ref',
+    'approval_digest', 'repository_id', 'task_digest', 'allowed_paths', 'branch_prefix',
+    'allowed_actions', 'expires_at', 'max_runs', 'runs_consumed', 'revocation_epoch'];
+  const data = {};
+  for (const raw of readFileSync(file, 'utf8').split('\n')) {
+    const line = raw.trimEnd();
+    if (line === '' || line.startsWith('#')) continue;
+    const m = line.match(/^([a-z][a-z0-9_]*):[ \t]*(.*)$/);
+    if (!m) fail(`${file}: malformed line`);
+    const [, key, value] = m;
+    if (!allowed.includes(key)) fail(`${file}: unknown key ${key}`);
+    if (key in data) fail(`${file}: duplicate key ${key}`);
+    data[key] = value;
+  }
+  if (data.grant_present !== 'true') fail('grant_present must be true to issue');
+  const list = (key) => data[key].replace(/^\[/, '').replace(/\]$/, '').split(',')
+    .map((s) => s.trim().replace(/^['"]|['"]$/g, '')).filter((s) => s !== '');
+  return {
+    type: 'issue',
+    grant_id: data.grant_id,
+    issuer: data.issuer,
+    repository_id: data.repository_id,
+    task_digest: data.task_digest,
+    approval_digest: data.approval_digest,
+    allowed_paths: list('allowed_paths'),
+    branch_prefix: data.branch_prefix,
+    allowed_actions: list('allowed_actions'),
+    expires_at: data.expires_at,
+    max_runs: Number(data.max_runs),
+    revocation_epoch: Number(data.revocation_epoch),
+  };
+}
+
+function fail(message) {
+  console.error(`autopilot-ledger: ${message}`);
+  process.exit(1);
+}
+
+const [command, file, ...rest] = process.argv.slice(2);
+if (!command) { console.error(USAGE); process.exit(2); }
+
+if (command === 'init') {
+  if (existsSync(file)) fail(`ledger already exists: ${file}`);
+  writeFileSync(file, '');
+  console.log(JSON.stringify({ initialized: file }));
+  process.exit(0);
+}
+
+const lines = load(file);
+
+switch (command) {
+  case 'issue': {
+    const grant = parseGrantYaml(rest[0]);
+    if (lines.some((l) => JSON.parse(l).grant_id === grant.grant_id && JSON.parse(l).type === 'issue')) {
+      fail(`grant already issued: ${grant.grant_id}`);
+    }
+    append(file, lines, grant);
+    break;
+  }
+  case 'revoke': {
+    const [grantId, epoch, reasonRef] = rest;
+    if (!/^[0-9]+$/.test(epoch ?? '')) fail('new-epoch must be a non-negative integer');
+    if (!reasonRef) fail('reason-ref is required');
+    append(file, lines, { type: 'revoke', grant_id: grantId, revocation_epoch: Number(epoch), reason_ref: reasonRef });
+    break;
+  }
+  case 'consume': {
+    const [grantId, runId] = rest;
+    if (!runId) fail('run-id is required');
+    const issued = lines.map((l) => JSON.parse(l))
+      .filter((e) => e.type === 'issue' && e.grant_id === grantId);
+    if (issued.length !== 1) fail(`grant ${grantId} must have exactly one issue entry`);
+    const consumed = lines.map((l) => JSON.parse(l))
+      .filter((e) => e.type === 'consume' && e.grant_id === grantId && e.run_id === runId);
+    if (consumed.length > 0) fail(`run id already consumed (replay): ${runId}`);
+    const total = lines.map((l) => JSON.parse(l))
+      .filter((e) => e.type === 'consume' && e.grant_id === grantId).length;
+    if (total >= issued[0].max_runs) {
+      fail(`budget exhausted (${total}/${issued[0].max_runs})`);
+    }
+    append(file, lines, { type: 'consume', grant_id: grantId, run_id: runId });
+    break;
+  }
+  case 'verify': {
+    let prevHash = 'GENESIS';
+    const entries = [];
+    for (const [index, line] of lines.entries()) {
+      const entry = JSON.parse(line);
+      if (entry.prev_hash !== prevHash) fail(`line ${index + 1} breaks the chain`);
+      if (entryHash(entry) !== entry.entry_hash) fail(`line ${index + 1} fails digest verification`);
+      prevHash = entry.entry_hash;
+      entries.push(entry);
+    }
+    if (entries.length === 0) fail('ledger is empty');
+    if (!rest[0]) {
+      console.log(JSON.stringify({ ok: true, entries: entries.length, tip: prevHash }));
+      break;
+    }
+    const grant = parseGrantYaml(rest[0]);
+    const issue = entries.filter((e) => e.type === 'issue' && e.grant_id === grant.grant_id);
+    if (issue.length !== 1) fail(`grant ${grant.grant_id} must have exactly one issue entry`);
+    const issued = issue[0];
+    if (grant.repository_id !== issued.repository_id || grant.task_digest !== issued.task_digest
+      || grant.approval_digest !== issued.approval_digest || grant.branch_prefix !== issued.branch_prefix
+      || grant.expires_at !== issued.expires_at || Number(grant.max_runs) !== issued.max_runs
+      || Number(grant.revocation_epoch) < issued.revocation_epoch) {
+      fail('grant copy does not match the issued entry');
+    }
+    const revoked = entries.some((e) => e.type === 'revoke' && e.grant_id === grant.grant_id
+      && e.revocation_epoch > Number(grant.revocation_epoch));
+    if (revoked) fail(`grant ${grant.grant_id} is revoked at a newer epoch`);
+    const consumed = entries.filter((e) => e.type === 'consume' && e.grant_id === grant.grant_id).length;
+    if (consumed >= issued.max_runs) fail(`budget exhausted (${consumed}/${issued.max_runs})`);
+    console.log(JSON.stringify({ ok: true, consumed, max_runs: issued.max_runs, revocation_epoch: Number(grant.revocation_epoch) }));
+    break;
+  }
+  default:
+    console.error(USAGE);
+    process.exit(2);
+}

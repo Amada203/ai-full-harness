@@ -277,7 +277,7 @@ expect_generator_failure \
   "$ROOT_DIR/bin/new-full-project" --no-git --autopilot-controller-ref \
   "$PINNED_CONTROLLER_REF" disabled-controller-ref-app "$TMP_DIR"
 
-if rg -n '(^|[^A-Za-z])TBD([^A-Za-z]|$)' "$PROJECT_DIR/docs" >/dev/null; then
+if grep -rEn '(^|[^A-Za-z])TBD([^A-Za-z]|$)' "$PROJECT_DIR/docs" >/dev/null; then
   echo "Expected generated documentation to use explicit required markers instead of TBD" >&2
   exit 1
 fi
