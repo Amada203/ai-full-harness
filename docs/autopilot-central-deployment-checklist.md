@@ -36,7 +36,12 @@ repository executes these steps.
 ## 4. Ledger operations (per the confirmed authority split)
 
 - [ ] Hold the append-only ledger snapshot outside both repositories;
-      entries are created only by the owner's trusted issuer.
+      entries are created only by the owner's trusted issuer
+      (`bin/autopilot-ledger init|issue|revoke|consume|verify`).
+- [ ] Distribute each snapshot with its tip hash; verifiers accept
+      `verify <ledger> --expect-tip <sha256>` so a truncated snapshot is
+      detectable. Old snapshots without an anchored tip cannot prove
+      freshness — treat them as unverified.
 - [ ] Issue grants as `issue` entries matching the project's
       `.autopilot/GITHUB_GRANT.yml`; revoke by appending `revoke` entries
       with a higher epoch; record `consume` entries per run.
@@ -51,6 +56,17 @@ repository executes these steps.
       recovery, upgrade notification, sanitized feedback, rollback.
 - [ ] Preserve run summaries as local evidence before enabling any
       non-dry-run lane; real cross-tool resume drills stay human evidence.
+
+## 6. GitHub App creation values (owner web-form step; no API exists)
+
+- Repository access: Only select repositories.
+- Permissions: Contents read/write; Pull requests read/write;
+  Metadata read-only. Nothing else.
+- Webhook: disabled. No device/browser flow needed for machine use.
+- After creation: download the private key, then store it centrally
+  (never in either repository):
+  `gh secret set AUTOPILOT_APP_PRIVATE_KEY --repo Amada203/project-autopilot < key.pem`
+  and set `AUTOPILOT_APP_ID` / `AUTOPILOT_CLIENT_ID` as repo variables.
 
 ## Explicitly out of scope for automation
 

@@ -140,3 +140,47 @@ Both suites green after consolidation: harness 12/12, controller 58/58.
 The decision is unchanged and now fully consistent across every document:
 local layer GO; remote autonomous delivery NO-GO pending owner-executed
 pilot and multi-tool drills.
+
+## Round 4 — Independent review falsified "local GO" (2026-09-07)
+
+An independent adversarial review reproduced eight P1 defects at the seams
+my round-3 consolidation had declared complete. Its verdict was correct:
+**NO-GO stands, and the local layer was NOT done.** All eight are now
+closed in the controller/harness code with the review's own counterexamples
+converted into permanent regressions:
+
+- F1 grant↔request binding at the execution point (repo, objective, paths,
+  action, branch, reserved run id, trusted clock) — expired/wrong-target/
+  out-of-scope requests now write nothing;
+- F2 actual candidate content is the single path source for policy, grant
+  scope, and the commit; declared paths can no longer hide protected writes;
+- F3 revocation is decided only by ledger entries — holder epochs cannot
+  resurrect a revoked grant;
+- F4 stop state re-checked before every side effect; cross-run budget via
+  ledger reservations bound to run ids;
+- F5 full generated ENROLLMENT.yml accepted; Action INPUT_*/GITHUB_OUTPUT
+  wired; RealGithubClient adapter; workflow_call + pinned controller
+  checkout + context generation; grant-status exit-3 handled as a
+  precondition, not swallowed;
+- F6 --dry-run[=bool] unified and authoritative against context downgrade;
+- F7 knowledge-sync resolves the full parent chain and refuses sources
+  resolving outside the project;
+- F8 promotion lanes require bound PASS smoke/adversarial evidence plus a
+  PASS canary; FAIL/missing evidence yields a diagnostic draft PR with
+  mandatory human approval.
+
+Verification: controller suite 58 → 72 green including the review's
+counterexamples as named regressions; harness suites green (archify-bound
+suites documented as local-only evidence); the review's probes re-run —
+CLI/action probes exit 0 with zero writes, every execution-point
+counterexample denied, and the F7 probe crashes precisely because the
+exfiltrated file no longer exists.
+
+Honest residue (unchanged NO-GO scope): ledger truncation detection now
+supports tip anchoring, but a signed/timestamped ledger service still does
+not exist; real candidate generation, canary-in-production, promotion and
+recovery remain unexercised end-to-end; default registration migration,
+real multi-tool resume, and the Harness evolution/upgrade/feedback services
+remain unimplemented. Round-3's "perfect state" claim is withdrawn; the
+completion rule of this harness — every claim needs authoritative evidence
+— is the actual standard.

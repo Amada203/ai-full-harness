@@ -136,3 +136,18 @@ owner's behalf, and the controller's four local commits were pushed and
 verified (origin/main = cfe4f13). No force push, no default-branch rule
 change, no secret, no App, no release. Remaining: branch protection,
 App/ledger setup, and the remote pilot per the deployment checklist.
+
+## 2026-09-07 — round 4: independent review falsified local-GO; eight P1s closed
+
+An independent adversarial review reproduced eight P1 seam defects and
+correctly overturned the round-3 consolidation claim. All eight are fixed
+with the review's counterexamples as permanent regressions: grant↔request
+binding at the execution point, actual-content path authority, permanent
+revocation, per-side-effect stop checks with ledger-run reservations,
+full-contract CLI/Action/workflow wiring, authoritative dry-run, evidence
+gates on promotion, and the knowledge-sync parent-symlink boundary (scoped
+to allowlisted sources). Ledger gained tip anchoring; the controller gained
+a REST client adapter, multi-tool entries and shared .ai context. Controller
+suite 58 → 72; review probes re-run clean. NO-GO remains for unattended
+promotion; the completion rule (authoritative evidence per claim) is
+reaffirmed as the standard.
