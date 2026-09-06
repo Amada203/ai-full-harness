@@ -35,4 +35,4 @@ jobs:
             node "tests/$t.mjs"
           done
       - name: Whitespace
-        run: git diff --check HEAD~
+        run: git show --check --oneline HEAD
