@@ -21,16 +21,19 @@ function finish(classification, details = {}, exitCode = 0) {
 function digest(bytes) {
   return `sha256:${createHash('sha256').update(bytes).digest('hex')}`;
 }
-function regularFile(filePath, label) {
+function regularFile(filePath, label, { withinProject = false } = {}) {
   if (!existsSync(filePath)) throw new Error(`${label} is missing`);
   const stat = lstatSync(filePath);
   if (!stat.isFile() || stat.isSymbolicLink()) throw new Error(`${label} must be a regular file`);
-  // F7: lstat only sees the final component. A parent directory may be a
-  // symlink escaping the project, so the whole real path must resolve
-  // inside the project root.
-  const real = realpathSync(filePath);
-  if (real !== root && !real.startsWith(root + sep)) {
-    throw new Error(`${label} resolves outside the project boundary`);
+  // F7: lstat only sees the final component. A parent directory of an
+  // allowlisted SOURCE may be a symlink escaping the project, so the whole
+  // real path must resolve inside the project root. Mirror files live in
+  // the Vault and are deliberately exempt from the project boundary.
+  if (withinProject) {
+    const real = realpathSync(filePath);
+    if (real !== root && !real.startsWith(root + sep)) {
+      throw new Error(`${label} resolves outside the project boundary`);
+    }
   }
 }
 function directory(filePath, label) {
@@ -111,7 +114,7 @@ function inspect(allowlist, binding, state) {
   const conflicts = [];
   for (const relativePath of allowlist) {
     const sourcePath = join(root, relativePath);
-    regularFile(sourcePath, `allowlisted source ${relativePath}`);
+    regularFile(sourcePath, `allowlisted source ${relativePath}`, { withinProject: true });
     const sourceBytes = readFileSync(sourcePath);
     const sourceDigest = digest(sourceBytes);
     const mirrorPath = join(binding.targetPath, relativePath);
