@@ -26,7 +26,7 @@ EOF
 ### A2. ⛔ GitHub App 创建(无 API,只能网页表单)
 
 1. 打开 github.com/settings/apps/new,逐字段:
-   - GitHub App name: `amada203-autopilot`
+   - GitHub App name: `ai-full-harness`
    - Homepage URL: `https://github.com/Amada203/ai-full-harness`
    - Identifying/authorization callback URL:留空;Webhook:**取消勾选 Active**
    - Permissions:Contents → **Read and write**;Pull requests → **Read
