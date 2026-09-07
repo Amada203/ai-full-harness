@@ -12,7 +12,7 @@ review-only feedback from an independently versioned Project Autopilot.
 Overall system readiness: NO-GO for remote autonomous delivery; the local
 layer is complete and PUBLISHED. Harness 2.4.0 is pushed to
 github.com/Amada203/ai-full-harness (origin/main = 134512c), and the
-controller is pushed to the private github.com/Amada203/project-autopilot
+controller is pushed to the public github.com/Amada203/project-autopilot
 (origin/main = cfe4f13, created 2026-09-06). Global tool registration, the
 GitHub App, secrets, branch protection, the ledger, and any remote pilot
 have not been performed.

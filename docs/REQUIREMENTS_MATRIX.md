@@ -23,7 +23,7 @@ any change that affects a row.
 | 14 | Harness upgrade notification & migration | receiver workflow only; central pusher/migration unimplemented | NO |
 | 15 | Sanitized REVIEW-only feedback | `tests/feedback.test.mjs`; delivery/ adoption loop unimplemented | PARTIAL |
 | 16 | Harness self-evolution | REVIEW proposal templates; no verified run loop | NO |
-| 17 | Deployment (App, secrets, protection, pilot) | harness branch protection ON; controller protection blocked by free plan; App = owner web-form step (checklist §6); no pilot | NO |
+| 17 | Deployment (App, secrets, protection, pilot) | harness branch protection ON; controller protection ON (repo made public); App = owner web-form step (checklist §6); no pilot | NO |
 | 18 | Both CIs green on GitHub | `Harness CI` (harness-suites) + `Controller CI` (test, cross-repo) | YES |
 
 Overall: **NO-GO for unattended promotion.** Blocking rows for GO: 3, 9
