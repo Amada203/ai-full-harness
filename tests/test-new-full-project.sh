@@ -121,7 +121,7 @@ assert_contains "$PROJECT_DIR/.ai/PROJECT_CONTEXT.md" "Stage 0 Plan"
 assert_contains "$PROJECT_DIR/.ai/PROJECT_CONTEXT.md" 'React / Node.js & shell \ tools'
 assert_contains "$PROJECT_DIR/.ai/PROJECT_CONTEXT.md" 'A demo / app & harness \ path'
 assert_contains "$PROJECT_DIR/.ai/PROJECT_CONTEXT.md" "Risk Level: M"
-assert_contains "$PROJECT_DIR/.ai/HARNESS_VERSION" "2.4.0"
+assert_contains "$PROJECT_DIR/.ai/HARNESS_VERSION" "2.4.1"
 assert_contains "$PROJECT_DIR/.ai/LIFECYCLE_STATE" "RISK_LEVEL=M"
 assert_contains "$PROJECT_DIR/.ai/LIFECYCLE_STATE" "PLAN_STATUS=BLOCKED"
 assert_contains "$PROJECT_DIR/.ai/LIFECYCLE_BASELINE" "PLAN_FINGERPRINT=UNRECORDED"

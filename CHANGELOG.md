@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.4.1 — 2026-09-07
+
+- Optimization pass: `bin/autopilot-ledger` budget reservations now wire
+  into the controller workflow (non-dry-run fails closed without a durable
+  persistence target); ledger tip anchoring documented as the distribution
+  integrity mechanism; added `docs/REQUIREMENTS_MATRIX.md` as the living
+  requirements→evidence map; root CI runs the portable suites on GitHub.
+
 ## 2.4.0 — 2026-09-06
 
 > Published 2026-09-06: origin/main `134512c` on

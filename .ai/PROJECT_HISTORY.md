@@ -151,3 +151,14 @@ a REST client adapter, multi-tool entries and shared .ai context. Controller
 suite 58 → 72; review probes re-run clean. NO-GO remains for unattended
 promotion; the completion rule (authoritative evidence per claim) is
 reaffirmed as the standard.
+
+## 2026-09-07 — round 5: optimization pass
+
+Durable ledger reservation wired into the candidate workflow (non-dry-run
+fails closed without ledger-repository/token; reservation persists before
+the controller acts). Controller tagged v0.1.0 (b2e5d9a) — the pinned-ref
+story is now real. CI gained a cross-repo job running the three integration
+tests that previously skipped. Fake/Real GitHub clients now share a
+contract conformance suite (offline via stubbed fetch). Added
+docs/REQUIREMENTS_MATRIX.md as the living requirements→evidence map.
+Controller suite 74/74.
