@@ -69,6 +69,18 @@ gh repo create Amada203/autopilot-ledger --private   # 持久账本仓
 验收点:dry-run 零写入;run 产生草稿 PR;撤销/暂停/SAFE_STOP 反例全部
 拒绝;每次结果存档进 `docs/reviews/`。
 
+### A6. ⛔ LEDGER_TOKEN(最后一项配置)
+
+创建细粒度 PAT:github.com/settings/personal-access-tokens/new → 仅选
+autopilot-ledger 仓 → Contents: Read and write → 生成后:
+
+```bash
+gh secret set LEDGER_TOKEN --repo Amada203/autopilot-pilot --body "<PAT>"
+```
+
+完成后试点跑 non-dry-run 即产生真实草稿 PR(控制器已在 2026-09-07 接通
+RealGithubClient,缺 token 时显式拒绝)。
+
 ### A5. ⛔ 真实多工具续接演练(需要你操作各工具)
 
 同一试点项目:Codex 做一步并 snapshot → Claude 打开先跑

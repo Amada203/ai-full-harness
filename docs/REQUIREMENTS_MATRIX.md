@@ -17,7 +17,7 @@ any change that affects a row.
 | 8 | Narrow GitHub candidate grant | `tests/test-autopilot-grant.sh` + controller execution-point binding (F1) `test/review-round4.test.mjs` | YES (local) |
 | 9 | Central control ledger authority | spec confirmed; `bin/autopilot-ledger` + controller chain verification; tip anchoring; no signed service | PARTIAL |
 | 10 | Controller candidate branch / draft PR only | `test/controller.test.mjs`, `test/candidate.test.mjs`, client contract `test/client-contract.test.mjs` | YES (local) |
-| 11 | Durable cross-run budget & safe-stop | workflow reservation step (2026-09-07) + `requireRunReservation` fixtures; production e2e unexercised | PARTIAL |
+| 11 | Durable cross-run budget & safe-stop | workflow reservation step + `requireRunReservation` fixtures; pilot lane promoted to candidate_pr (2026-09-07); non-dry-run now requires a repository token (RealGithubClient wired, 75/75); production draft-PR e2e awaits the scoped `LEDGER_TOKEN` secret (owner PAT on ledger repo) | PARTIAL (one owner step from YES) |
 | 12 | Evidence gates promotion | F8 regressions: FAIL/missing evidence ⇒ diagnostic PR + human approval | YES (local) |
 | 13 | Pinned controller release | tag `v0.1.0` (commit b2e5d9a) pushed 2026-09-07 | YES |
 | 14 | Harness upgrade notification & migration | receiver workflow only; central pusher/migration unimplemented | NO |
