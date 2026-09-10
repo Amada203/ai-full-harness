@@ -162,3 +162,18 @@ tests that previously skipped. Fake/Real GitHub clients now share a
 contract conformance suite (offline via stubbed fetch). Added
 docs/REQUIREMENTS_MATRIX.md as the living requirements→evidence map.
 Controller suite 74/74.
+
+
+## 2026-09-10 — first real autonomous draft PR
+
+The controller produced its first real draft PR (#1 on autopilot-pilot) on
+a GitHub-hosted runner through the full gate chain: enrollment, ACTIVE
+state, request-bound grant+ledger verification (repository, objective,
+actual paths, action, branch, clock), evidence gate, then a real candidate
+branch, commit, and draft PR with risk label. Debugging the path surfaced
+and fixed real issues: annotated-tag SHAs are not valid pins, repo
+variables do not auto-enter step env, and GITHUB_TOKEN PR creation is
+default-off (enabled via Actions permissions API, approve still forbidden
+by the client contract). Reservation persistence without a scoped token
+remains fail-closed. Local GO extended by remote candidate-write evidence;
+unattended promotion stays NO-GO pending owner review of pilot results.
